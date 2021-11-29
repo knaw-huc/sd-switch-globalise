@@ -4,7 +4,7 @@ import net.sf.saxon.s9api.SaxonApiException;
 import net.sf.saxon.s9api.XdmItem;
 import net.sf.saxon.s9api.XdmNode;
 import nl.mpi.tla.util.Saxon;
-import org.knaw.huc.sdswitch.recipe.Recipe;
+import org.knaw.huc.sdswitch.server.recipe.Recipe;
 
 import javax.xml.transform.stream.StreamSource;
 import java.io.InputStream;

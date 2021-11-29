@@ -1,6 +1,6 @@
-package org.knaw.huc.sdswitch.impl;
+package org.knaw.huc.sdswitch.recipe;
 
-import org.knaw.huc.sdswitch.recipe.Recipe;
+import org.knaw.huc.sdswitch.server.recipe.Recipe;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;

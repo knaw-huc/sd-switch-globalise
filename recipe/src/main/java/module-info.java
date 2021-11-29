@@ -1,5 +1,5 @@
 module org.knaw.huc.sdswitch.recipe {
-    exports org.knaw.huc.sdswitch.recipe;
-    requires Saxon.HE;
-    uses org.knaw.huc.sdswitch.recipe.Recipe;
+    requires org.knaw.huc.sdswitch.server;
+    provides org.knaw.huc.sdswitch.server.recipe.Recipe
+            with org.knaw.huc.sdswitch.recipe.HelloWorldRecipe;
 }

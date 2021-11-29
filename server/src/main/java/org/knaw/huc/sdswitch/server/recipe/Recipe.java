@@ -1,4 +1,4 @@
-package org.knaw.huc.sdswitch.recipe;
+package org.knaw.huc.sdswitch.server.recipe;
 
 import net.sf.saxon.s9api.XdmItem;
 

@@ -1,6 +1,7 @@
 package org.knaw.huc.sdswitch.server;
 
 import io.javalin.Javalin;
+import io.javalin.core.util.JavalinLogger;
 import org.knaw.huc.sdswitch.server.config.Switch;
 import org.knaw.huc.sdswitch.server.config.SwitchLoader;
 
@@ -25,6 +26,7 @@ public class Application {
 
         for (Switch sw : switches) {
             app.get(sw.getUrlPattern(), sw::handle);
+            JavalinLogger.info("Configured a new switch for URL " + sw.getUrlPattern());
         }
     }
 }

@@ -2,7 +2,7 @@ package org.knaw.huc.sdswitch.server.config;
 
 import io.javalin.http.Context;
 import net.sf.saxon.s9api.XdmItem;
-import org.knaw.huc.sdswitch.recipe.Recipe;
+import org.knaw.huc.sdswitch.server.recipe.Recipe;
 
 public class Switch {
     private final Recipe recipe;
