@@ -11,8 +11,8 @@ import java.util.Set;
 
 public class Application {
     public static void main(String[] args) throws Exception {
-        final InputStream configStream = System.getProperty("config") != null
-                ? new FileInputStream(System.getProperty("config"))
+        final InputStream configStream = System.getenv().get("CONFIG") != null
+                ? new FileInputStream(System.getenv().get("CONFIG"))
                 : Application.class.getClassLoader().getResourceAsStream("config.xml");
 
         final SwitchLoader switchLoader = new SwitchLoader();

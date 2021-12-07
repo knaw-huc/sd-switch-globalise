@@ -3,6 +3,9 @@ package org.knaw.huc.sdswitch.server.config;
 import io.javalin.http.Context;
 import net.sf.saxon.s9api.XdmItem;
 import org.knaw.huc.sdswitch.server.recipe.Recipe;
+import org.knaw.huc.sdswitch.server.recipe.RecipeData;
+import org.knaw.huc.sdswitch.server.recipe.RecipeException;
+import org.knaw.huc.sdswitch.server.recipe.RecipeResponse;
 
 public class Switch {
     private final Recipe recipe;
@@ -20,15 +23,25 @@ public class Switch {
     }
 
     public void handle(Context context) {
-        Recipe.RecipeData data = new Recipe.RecipeData(context.pathParamMap(), config);
+        try {
+            RecipeData data = new RecipeData(context.pathParamMap(), config);
+            RecipeResponse response = recipe.withData(data);
 
-        String redirect = recipe.redirect(data);
-        if (redirect != null) {
-            context.redirect(redirect);
-            return;
+            if (response != null && response.redirect() != null) {
+                context.redirect(response.redirect());
+                return;
+            }
+
+            if (response != null && response.contentType() != null && response.inputStream() != null) {
+                context.contentType(response.contentType());
+                context.result(response.inputStream());
+                return;
+            }
+
+            throw new RecipeException("No data from recipe!");
+        } catch (RecipeException ex) {
+            context.status(ex.getHttpStatus());
+            context.result(ex.getHttpStatus() != 500 ? ex.getMessage() : "Internal Server Error");
         }
-
-        context.contentType(recipe.contentType(data));
-        context.result(recipe.body(data));
     }
 }
