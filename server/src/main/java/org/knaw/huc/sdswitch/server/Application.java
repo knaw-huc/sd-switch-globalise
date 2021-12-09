@@ -16,7 +16,7 @@ public class Application {
                 : Application.class.getClassLoader().getResourceAsStream("config.xml");
 
         final SwitchLoader switchLoader = new SwitchLoader();
-        final Set<Switch> switches = switchLoader.loadSwitches(configStream);
+        final Set<Switch<?>> switches = switchLoader.loadSwitches(configStream);
 
         final int port = Integer.parseInt(System.getenv().getOrDefault("SERVER_PORT", "8080"));
         final Javalin app = Javalin.create(config -> {
@@ -24,7 +24,7 @@ public class Application {
             config.enableDevLogging();
         }).start(port);
 
-        for (Switch sw : switches) {
+        for (Switch<?> sw : switches) {
             app.get(sw.getUrlPattern(), sw::handle);
             JavalinLogger.info("Configured a new switch for URL " + sw.getUrlPattern());
         }
