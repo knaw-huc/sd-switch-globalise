@@ -12,10 +12,12 @@ import org.knaw.huc.sdswitch.server.recipe.RecipeResponse;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
 public class DreamFactoryRecipe implements Recipe<DreamFactoryRecipe.DreamFactoryConfig> {
-    public record DreamFactoryConfig(String baseUrl, String accept, String apiKey) {
+    public record DreamFactoryConfig(String type, String baseUrl, String accept, String apiKey) {
     }
 
     @Override
@@ -26,6 +28,10 @@ public class DreamFactoryRecipe implements Recipe<DreamFactoryRecipe.DreamFactor
     @Override
     public DreamFactoryConfig parseConfig(XdmItem config) throws RecipeParseException {
         try {
+            String type = Saxon.xpath2string(config, "type");
+            if (type == null)
+                throw new RecipeParseException("Missing required type");
+
             String baseUrl = Saxon.xpath2string(config, "base-url");
             if (baseUrl == null)
                 throw new RecipeParseException("Missing required base-url");
@@ -36,7 +42,7 @@ public class DreamFactoryRecipe implements Recipe<DreamFactoryRecipe.DreamFactor
 
             String accept = Saxon.xpath2string(config, "accept");
 
-            return new DreamFactoryConfig(baseUrl, accept, apiKey);
+            return new DreamFactoryConfig(type, baseUrl, accept, apiKey);
         } catch (SaxonApiException ex) {
             throw new RecipeParseException(ex.getMessage(), ex);
         }
@@ -45,8 +51,15 @@ public class DreamFactoryRecipe implements Recipe<DreamFactoryRecipe.DreamFactor
     @Override
     public RecipeResponse withData(RecipeData<DreamFactoryConfig> data) throws RecipeException {
         try {
-            URL url = new URL(data.config().baseUrl() + "/" + data.pathParams().get("table"));
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            String url = String.format("%s/api/v2/%s/_table/%s",
+                    data.config().baseUrl(), data.config().type(),
+                    URLEncoder.encode(data.pathParams().get("table"), StandardCharsets.UTF_8.toString()));
+
+            if (data.pathParams().get("id") != null)
+                url += String.format("/%s?fields=*&related=*",
+                        URLEncoder.encode(data.pathParams().get("id"), StandardCharsets.UTF_8.toString()));
+
+            HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Accept", data.config().accept() != null && !data.config().accept().isEmpty()
                     ? data.config().accept() : "application/json");
