@@ -40,6 +40,8 @@ public class DreamFactoryRecipe implements Recipe<DreamFactoryRecipe.DreamFactor
             if (apiKey == null)
                 throw new RecipeParseException("Missing required api-key");
 
+            String related = Saxon.xpath2string(config, "related");
+
             String accept = Saxon.xpath2string(config, "accept");
 
             return new DreamFactoryConfig(type, baseUrl, accept, apiKey);
@@ -55,9 +57,14 @@ public class DreamFactoryRecipe implements Recipe<DreamFactoryRecipe.DreamFactor
                     data.config().baseUrl(), data.config().type(),
                     URLEncoder.encode(data.pathParams().get("table"), StandardCharsets.UTF_8.toString()));
 
-            if (data.pathParams().get("id") != null)
-                url += String.format("/%s?fields=*&related=*",
-                        URLEncoder.encode(data.pathParams().get("id"), StandardCharsets.UTF_8.toString()));
+            if (data.pathParams().get("id") != null) {
+                String accept = data.config().accept();
+                if (accept == null) 
+                    accept="*";
+                url += String.format("/%s?fields=*&related=%s",
+                        URLEncoder.encode(data.pathParams().get("id"), StandardCharsets.UTF_8.toString()),
+                        URLEncoder.encode(accept, StandardCharsets.UTF_8.toString()));
+            }
 
             HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
             conn.setRequestMethod("GET");
