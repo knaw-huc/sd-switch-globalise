@@ -17,7 +17,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
 public class DreamFactoryRecipe implements Recipe<DreamFactoryRecipe.DreamFactoryConfig> {
-    public record DreamFactoryConfig(String type, String baseUrl, String accept, String apiKey) {
+    public record DreamFactoryConfig(String type, String baseUrl, String accept, String apiKey, String related) {
     }
 
     @Override
@@ -44,7 +44,7 @@ public class DreamFactoryRecipe implements Recipe<DreamFactoryRecipe.DreamFactor
 
             String accept = Saxon.xpath2string(config, "accept");
 
-            return new DreamFactoryConfig(type, baseUrl, accept, apiKey);
+            return new DreamFactoryConfig(type, baseUrl, accept, apiKey, related);
         } catch (SaxonApiException ex) {
             throw new RecipeParseException(ex.getMessage(), ex);
         }
@@ -58,12 +58,15 @@ public class DreamFactoryRecipe implements Recipe<DreamFactoryRecipe.DreamFactor
                     URLEncoder.encode(data.pathParams().get("table"), StandardCharsets.UTF_8.toString()));
 
             if (data.pathParams().get("id") != null) {
-                String accept = data.config().accept();
-                if (accept == null) 
-                    accept="*";
-                url += String.format("/%s?fields=*&related=%s",
+                String related = data.config().accept();
+                if (related == null)
+                    related="";
+                else
+                    related="&related=" + related;
+                // related=* gives 'not implemented'
+                url += String.format("/%s?fields=*%s",
                         URLEncoder.encode(data.pathParams().get("id"), StandardCharsets.UTF_8.toString()),
-                        URLEncoder.encode(accept, StandardCharsets.UTF_8.toString()));
+                        URLEncoder.encode(related, StandardCharsets.UTF_8.toString()));
             }
 
             HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
