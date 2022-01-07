@@ -9,12 +9,17 @@ import org.knaw.huc.sdswitch.server.recipe.RecipeException;
 import org.knaw.huc.sdswitch.server.recipe.RecipeParseException;
 import org.knaw.huc.sdswitch.server.recipe.RecipeResponse;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
+import java.util.stream.Collectors;
+import org.apache.commons.io.IOUtils;
 
 public class DreamFactoryRecipe implements Recipe<DreamFactoryRecipe.DreamFactoryConfig> {
     public record DreamFactoryConfig(String type, String baseUrl, String accept, String apiKey, String related) {
@@ -77,7 +82,15 @@ public class DreamFactoryRecipe implements Recipe<DreamFactoryRecipe.DreamFactor
 
             if (conn.getResponseCode() != 200)
                 throw new RecipeException(conn.getResponseMessage(), conn.getResponseCode());
-            return RecipeResponse.withBody(conn.getInputStream(), conn.getHeaderField("Content-Type"));
+            // conn.getInputStream()
+            String text = new BufferedReader(
+                new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))
+                .lines()
+                .collect(Collectors.joining("\n"));
+            System.err.println("BODY (json): "+text);
+            InputStream is = IOUtils.toInputStream(text, StandardCharsets.UTF_8);
+            //
+            return RecipeResponse.withBody(is, conn.getHeaderField("Content-Type"));
         } catch (IOException ex) {
             throw new RecipeException(ex.getMessage(), ex);
         }
