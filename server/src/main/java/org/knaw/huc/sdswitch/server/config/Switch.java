@@ -6,12 +6,6 @@ import org.knaw.huc.sdswitch.server.recipe.RecipeData;
 import org.knaw.huc.sdswitch.server.recipe.RecipeException;
 import org.knaw.huc.sdswitch.server.recipe.RecipeResponse;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.util.stream.Collectors;
-// import org.json.*;
-
 public class Switch<C> {
     private final Recipe<C> recipe;
     private final String urlPattern;
@@ -39,18 +33,7 @@ public class Switch<C> {
 
             if (response != null && response.contentType() != null && response.inputStream() != null) {
                 context.contentType(response.contentType());
-                String text = new BufferedReader(
-                    new InputStreamReader(response.inputStream(), StandardCharsets.UTF_8))
-                    .lines()
-                    .collect(Collectors.joining("\n"));
-                System.err.println("BODY (json): "+text);
-                // try {
-                //     JSONObject obj = new JSONObject(text);
-                //     System.err.println("JSON: "+obj);
-                // } catch (JSONException e) {
-                //     e.printStackTrace();
-                // }
-                context.result(text);
+                context.result(response.inputStream());
                 return;
             }
 
