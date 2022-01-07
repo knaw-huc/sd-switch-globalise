@@ -58,15 +58,15 @@ public class DreamFactoryRecipe implements Recipe<DreamFactoryRecipe.DreamFactor
                     URLEncoder.encode(data.pathParams().get("table"), StandardCharsets.UTF_8.toString()));
 
             if (data.pathParams().get("id") != null) {
-                String related = data.config().accept();
+                String related = data.config().related();
                 if (related == null)
                     related="";
                 else
-                    related="&related=" + related;
+                    related="&related=" + URLEncoder.encode(related, StandardCharsets.UTF_8.toString());
                 // related=* gives 'not implemented'
                 url += String.format("/%s?fields=*%s",
                         URLEncoder.encode(data.pathParams().get("id"), StandardCharsets.UTF_8.toString()),
-                        URLEncoder.encode(related, StandardCharsets.UTF_8.toString()));
+                        related);
             }
 
             HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
@@ -77,7 +77,6 @@ public class DreamFactoryRecipe implements Recipe<DreamFactoryRecipe.DreamFactor
 
             if (conn.getResponseCode() != 200)
                 throw new RecipeException(conn.getResponseMessage(), conn.getResponseCode());
-
             return RecipeResponse.withBody(conn.getInputStream(), conn.getHeaderField("Content-Type"));
         } catch (IOException ex) {
             throw new RecipeException(ex.getMessage(), ex);
