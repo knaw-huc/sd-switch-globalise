@@ -19,5 +19,11 @@
       <artifactId>server</artifactId>
       <version>1.0-SNAPSHOT</version>
     </dependency>
+    <!-- https://mvnrepository.com/artifact/org.sharegov/mjson -->
+    <dependency>
+      <groupId>org.sharegov</groupId>
+      <artifactId>mjson</artifactId>
+      <version>1.4.1</version>
+    </dependency>
   </dependencies>
 </project>
