@@ -4,6 +4,7 @@
 *.class
 *.log
 *.jar
+*.iml
 
 hs_err_pid*
 dependency-reduced-pom.xml
