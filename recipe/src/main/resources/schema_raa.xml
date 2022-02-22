@@ -1,0 +1,162 @@
+<s:S xmlns:s="http://di.huc.knaw.nl/sd/hi/schema"
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  <personen>
+    <persoon rdf:subject="https://humanities.knaw.nl/raa/person/{id}"
+      rdf:type="https://humanities.knaw.nl/person">
+      <id s:min="1" s:max="1" s:datatype="integer"/>
+      <adel s:min="0" s:max="1" s:datatype="integer"/>
+      <heerlijkheid s:min="0" s:max="1" s:datatype="text"/>
+      <voornaam s:min="0" s:max="1" s:datatype="text" rdf:predicate="pnv:givenName"/>
+      <tussenvoegsel s:min="0" s:max="1" s:datatype="text"/>
+      <geslachtsnaam s:min="0" s:max="1" s:datatype="text"/>
+      <geboortedatum s:min="0" s:max="1" s:datatype="date"/>
+      <geboortedatum_als_bekend s:min="0" s:max="1" s:datatype="text"/>
+      <geboorteplaats s:min="0" s:max="1" s:datatype="text"/>
+      <doopjaar s:min="0" s:max="1" s:datatype="integer"
+        rdf:predicate="http://example.com/baptismDate"
+        rdf:object="https://humanities.knaw.nl/year/{.}"/>
+      <overlijdensdatum s:min="0" s:max="1" s:datatype="date"/>
+      <overlijdensdatum_als_bekend s:min="0" s:max="1" s:datatype="text"/>
+      <overlijdensplaats s:min="0" s:max="1" s:datatype="text"/>
+      <adellijketitel s:min="0" s:max="1" s:datatype="enum" rdf:predicate="http://example.com/title"
+        rdf:object="https://humanities.knaw.nl/title/{.}">
+        <s:instance/>
+      </adellijketitel>
+      <academischetitel s:min="0" s:max="1" s:datatype="enum">
+        <s:instance/>
+      </academischetitel>
+      <opmerkingen s:min="0" s:max="1" s:datatype="text"/>
+      <adelspredikaat s:min="0" s:max="1" s:datatype="enum">
+        <s:instance/>
+      </adelspredikaat>
+      <eindcontrole s:min="0" s:max="1" s:datatype="text"/>
+      <geboorte s:min="0" s:max="1" s:datatype="date"/>
+      <old_idacademischetitel s:min="0" s:max="1" s:datatype="text"/>
+      <old_idadellijketitel s:min="0" s:max="1" s:datatype="text"/>
+      <old_idregent s:min="0" s:max="1" s:datatype="text"/>
+      <overlijden s:min="0" s:max="1" s:datatype="date"/>
+      <periode s:min="0" s:max="1" s:datatype="text"/>
+      <searchable s:min="0" s:max="1" s:datatype="text"/>
+      <aanstellingen s:min="0">
+        <aanstelling>
+          <id s:min="1" s:max="1" s:datatype="integer"/>
+          <van s:min="0" s:max="1" s:datatype="date"/>
+          <van_als_bekend s:min="0" s:max="1" s:datatype="text"/>
+          <tot s:min="0" s:max="1" s:datatype="date"/>
+          <tot_als_bekend s:min="0" s:max="1" s:datatype="text"/>
+          <persoon_id s:min="0" s:max="1" s:datatype="integer"/>
+          <functies>
+            <functie>
+              <id s:min="1" s:max="1" s:datatype="integer"/>
+              <naam s:min="0" s:max="1" s:datatype="text"/>
+              <lokaal s:min="0" s:max="1" s:datatype="integer"/>
+            </functie>
+          </functies>
+          <instellingen>
+            <instelling>
+              <id s:min="1" s:max="1" s:datatype="integer"/>
+              <naam s:min="0" s:max="1" s:datatype="text"/>
+              <toelichting s:min="0" s:max="1" s:datatype="text"/>
+              <lokalen>
+                <!-- eigen entiteit -->
+                <lokaal>
+                  <id s:min="1" s:max="1" s:datatype="integer"/>
+                  <naam s:min="0" s:max="1" s:datatype="text"/>
+                </lokaal>
+              </lokalen>
+            </instelling>
+          </instellingen>
+          <regio_id s:min="0" s:max="1" s:datatype="integer"/>
+          <provincie_id s:min="0" s:max="1" s:datatype="integer"/>
+          <lokalen>
+            <!-- eigen entiteit -->
+            <lokaal>
+              <id s:min="1" s:max="1" s:datatype="integer"/>
+              <naam s:min="0" s:max="1" s:datatype="text"/>
+            </lokaal>
+          </lokalen>
+          <stand_id s:min="0" s:max="1" s:datatype="integer"/>
+          <vertegenwoordigend s:min="0" s:max="1" s:datatype="integer"/>
+          <opmerkingen s:min="0" s:max="1" s:datatype="text"/>
+          <begindag s:min="0" s:max="1" s:datatype="text"/>
+          <beginjaar s:min="0" s:max="1" s:datatype="text"/>
+          <beginmaand s:min="0" s:max="1" s:datatype="text"/>
+          <einddag s:min="0" s:max="1" s:datatype="text"/>
+          <eindjaar s:min="0" s:max="1" s:datatype="text"/>
+          <eindmaand s:min="0" s:max="1" s:datatype="text"/>
+          <old_id s:min="0" s:max="1" s:datatype="text"/>
+          <old_idcollege s:min="0" s:max="1" s:datatype="text"/>
+          <old_idfunctie s:min="0" s:max="1" s:datatype="text"/>
+          <old_idregent s:min="0" s:max="1" s:datatype="text"/>
+          <old_lokaal s:min="0" s:max="1" s:datatype="text"/>
+          <old_provinciaal s:min="0" s:max="1" s:datatype="text"/>
+          <old_regio s:min="0" s:max="1" s:datatype="text"/>
+          <old_stand s:min="0" s:max="1" s:datatype="text"/>
+          <old_vertegenwoordigend s:min="0" s:max="1" s:datatype="text"/>
+          <periode s:min="0" s:max="1" s:datatype="text"/>
+        </aanstelling>
+      </aanstellingen>
+      <aliassen>
+        <alias>
+          <id s:min="1" s:max="1" s:datatype="integer"/>
+          <naam s:min="0" s:max="1" s:datatype="text"/>
+          <persoon_id s:min="0" s:max="1" s:datatype="integer"/>
+          <old_idpersoon s:min="0" s:max="1" s:datatype="text"/>
+        </alias>
+      </aliassen>
+      <bron_detailen>
+        <bron_details>
+          <id s:min="1" s:max="1" s:datatype="integer"/>
+          <details s:min="0" s:max="1" s:datatype="text"/>
+          <bron>
+            <naam s:min="0" s:max="1" s:datatype="text"/>
+          </bron>
+          <persoon_id s:min="0" s:max="1" s:datatype="integer"/>
+          <old_idregent s:min="0" s:max="1" s:datatype="text"/>
+          <old_idbron s:min="0" s:max="1" s:datatype="text"/>
+          <regent_id s:min="0" s:max="1" s:datatype="text"/>
+        </bron_details>
+      </bron_detailen>
+    </persoon>
+  </personen>
+  <periodes>
+    <periode>
+      <id s:min="1" s:max="1" s:datatype="integer"/>
+      <naam s:min="0" s:max="1" s:datatype="text"/>
+    </periode>
+  </periodes>
+  <provincies>
+    <provincie>
+      <id s:min="1" s:max="1" s:datatype="integer"/>
+      <naam s:min="0" s:max="1" s:datatype="text"/>
+    </provincie>
+  </provincies>
+  <regenten>
+    <regent>
+      <id s:min="1" s:max="1" s:datatype="integer"/>
+      <heerlijkheid s:min="0" s:max="1" s:datatype="text"/>
+      <adelspredikaat s:min="0" s:max="1" s:datatype="text"/>
+      <voornaam s:min="0" s:max="1" s:datatype="text"/>
+      <tussenvoegsel s:min="0" s:max="1" s:datatype="text"/>
+      <geslachtsnaam s:min="0" s:max="1" s:datatype="text"/>
+      <geboortejaar s:min="0" s:max="1" s:datatype="date"/>
+      <geboortejaar_als_bekend s:min="0" s:max="1" s:datatype="text"/>
+      <overlijdensjaar s:min="0" s:max="1" s:datatype="date"/>
+      <overlijdensjaar_als_bekend s:min="0" s:max="1" s:datatype="text"/>
+      <adellijketitel_id s:min="0" s:max="1" s:datatype="integer"/>
+      <academischetitel_id s:min="0" s:max="1" s:datatype="integer"/>
+    </regent>
+  </regenten>
+  <regios>
+    <regio>
+      <id s:min="1" s:max="1" s:datatype="integer"/>
+      <naam s:min="0" s:max="1" s:datatype="text"/>
+    </regio>
+  </regios>
+  <standen>
+    <stand>
+      <id s:min="1" s:max="1" s:datatype="integer"/>
+      <naam s:min="0" s:max="1" s:datatype="text"/>
+    </stand>
+  </standen>
+</s:S>
