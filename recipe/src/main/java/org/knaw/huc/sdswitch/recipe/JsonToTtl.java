@@ -15,23 +15,26 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 public class JsonToTtl {
 
   static String rdfSubject = "";
   static String rdfType = "";
-  static Map<String,String> predicates = Collections.EMPTY_MAP;
+  static HashMap<String,String> predicates = new HashMap<String,String>();
 
 
   public static String jsonToTtl(String json) {
     Document schema = readSchema();
     Json jsonObject = Json.read(json);
+    // Hieronder nog wijzigen: zoek identifiers tussen {} (in het schema)
+    // en vervang deze door de waardes in de json
     String id = "" + jsonObject.at("id").getValue();
     rdfSubject = rdfSubject.replace("{id}",id);
     String ttl = "<" + rdfSubject + "> a <" + rdfType + ">";
     for (Map.Entry<String, String> entry : predicates.entrySet()) {
-      ttl += ";\n  <" + entry.getKey() + "> \"" + entry.getValue();
+      ttl += ";\n  <" + entry.getKey() + "> \"" + entry.getValue() + "\"";
     }
     ttl += ".";
     return ttl;
@@ -53,13 +56,17 @@ public class JsonToTtl {
         rdfSubject = element.getAttribute("rdf:subject");
         rdfType = element.getAttribute("rdf:type");
         NodeList children = node.getChildNodes();
-        // for (int temp = 0; temp < children.getLength(); temp++) {
+        for (int temp = 0; temp < children.getLength(); temp++) {
         //   short nodeType = children.item(temp).getNodeType();
-        //   Element child = (Element) children.item(temp);
-        //   String nodePredicate = child.getAttribute("rdf:predicate");
-        //   String nodeName = child.getNodeName();
-        //   predicates.put(nodeName, nodePredicate);
-        // }
+          if (children.item(temp).getNodeType() == Node.ELEMENT_NODE) {
+            Element child = (Element) children.item(temp);
+            String nodePredicate = child.getAttribute("rdf:predicate");
+            if (nodePredicate != "") {
+              String nodeName = child.getNodeName();
+              predicates.put(nodeName, nodePredicate);
+            }
+          }
+        }
       }
     } catch (ParserConfigurationException | SAXException | IOException e) {
       e.printStackTrace();
