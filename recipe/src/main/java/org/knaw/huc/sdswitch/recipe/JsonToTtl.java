@@ -1,6 +1,6 @@
 package org.knaw.huc.sdswitch.recipe;
 
-import org.json.JSONException;
+import mjson.Json;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -14,19 +14,8 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.AbstractList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.function.Predicate;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-
 
 public class JsonToTtl {
 
@@ -35,13 +24,12 @@ public class JsonToTtl {
   static Map<String,String> predicates = Collections.EMPTY_MAP;
 
 
-  public static String jsonToTtl(String json) throws JSONException {
+  public static String jsonToTtl(String json) {
     Document schema = readSchema();
-    JSONObject jsonObject = new JSONObject(json);
-
-    String id = jsonObject.getString("id");
-    rdfSubject.replace("id",id);
-    String ttl = rdfSubject + " a " + rdfType;
+    Json jsonObject = Json.read(json);
+    String id = "" + jsonObject.at("id").getValue();
+    rdfSubject = rdfSubject.replace("{id}",id);
+    String ttl = "<" + rdfSubject + "> a <" + rdfType + ">";
     for (Map.Entry<String, String> entry : predicates.entrySet()) {
       ttl += ";\n  <" + entry.getKey() + "> \"" + entry.getValue();
     }
@@ -65,17 +53,13 @@ public class JsonToTtl {
         rdfSubject = element.getAttribute("rdf:subject");
         rdfType = element.getAttribute("rdf:type");
         NodeList children = node.getChildNodes();
-        for (int temp = 0; temp < children.getLength(); temp++) {
-          Element child = (Element) children.item(temp);
-          String nodePredicate = child.getAttribute("rdf:predicate");
-          String nodeName = child.getNodeName();
-          predicates.put(nodeName, nodePredicate);
-        }
-      }
-
-      list = node.getChildNodes();
-      for (int temp = 0; temp < list.getLength(); temp++) {
-        Node child = list.item(temp);
+        // for (int temp = 0; temp < children.getLength(); temp++) {
+        //   short nodeType = children.item(temp).getNodeType();
+        //   Element child = (Element) children.item(temp);
+        //   String nodePredicate = child.getAttribute("rdf:predicate");
+        //   String nodeName = child.getNodeName();
+        //   predicates.put(nodeName, nodePredicate);
+        // }
       }
     } catch (ParserConfigurationException | SAXException | IOException e) {
       e.printStackTrace();
