@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -31,7 +32,7 @@ public class JsonToTtl {
 
   static String rdfSubject = "";
   static String rdfType = "";
-  static Map predicates = Collections.EMPTY_MAP;
+  static Map<String,String> predicates = Collections.EMPTY_MAP;
 
 
   public static String jsonToTtl(String json) throws JSONException {
@@ -40,7 +41,11 @@ public class JsonToTtl {
 
     String id = jsonObject.getString("id");
     rdfSubject.replace("id",id);
-    String ttl = rdfSubject + " a " + rdfType + ".";
+    String ttl = rdfSubject + " a " + rdfType;
+    for (Map.Entry<String, String> entry : predicates.entrySet()) {
+      ttl += ";\n  <" + entry.getKey() + "> \"" + entry.getValue();
+    }
+    ttl += ".";
     return ttl;
   }
 
