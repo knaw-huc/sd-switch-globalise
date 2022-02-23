@@ -15,6 +15,13 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.AbstractList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -24,12 +31,13 @@ public class JsonToTtl {
 
   static String rdfSubject = "";
   static String rdfType = "";
+  static Map predicates = Collections.EMPTY_MAP;
+
 
   public static String jsonToTtl(String json) throws JSONException {
     Document schema = readSchema();
     JSONObject jsonObject = new JSONObject(json);
 
-    //getting first and last name
     String id = jsonObject.getString("id");
     rdfSubject.replace("id",id);
     String ttl = rdfSubject + " a " + rdfType + ".";
@@ -51,6 +59,18 @@ public class JsonToTtl {
         Element element = (Element) node;
         rdfSubject = element.getAttribute("rdf:subject");
         rdfType = element.getAttribute("rdf:type");
+        NodeList children = node.getChildNodes();
+        for (int temp = 0; temp < children.getLength(); temp++) {
+          Element child = (Element) children.item(temp);
+          String nodePredicate = child.getAttribute("rdf:predicate");
+          String nodeName = child.getNodeName();
+          predicates.put(nodeName, nodePredicate);
+        }
+      }
+
+      list = node.getChildNodes();
+      for (int temp = 0; temp < list.getLength(); temp++) {
+        Node child = list.item(temp);
       }
     } catch (ParserConfigurationException | SAXException | IOException e) {
       e.printStackTrace();
