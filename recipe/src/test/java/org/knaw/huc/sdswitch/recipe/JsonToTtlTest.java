@@ -12,11 +12,11 @@ public class JsonToTtlTest {
 
   @Test
   public void runTestJsonTtl() {
-    String json = "{ \"id\":1 }";
+    String json = "{ \"id\":1, \"voornaam\":\"Willem Frederik\" }";
     String expectedResult = "<https://humanities.knaw.nl/raa/person/1> a <https://humanities.knaw.nl/person>;\n" +
-        "  <adellijketitel> \"http://example.com/title\";\n" +
-        "  <voornaam> \"pnv:givenName\";\n" +
-        "  <doopjaar> \"http://example.com/baptismDate\".";
+        // "  <adellijketitel> \"http://example.com/title\";\n" +
+        "  <pnv:givenName> \"Willem Frederik\".";
+        // "  <doopjaar> \"http://example.com/baptismDate\".";
     String result = JsonToTtl.jsonToTtl(json);
     Assert.assertEquals(expectedResult, result);
   }
