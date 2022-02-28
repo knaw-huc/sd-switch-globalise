@@ -31,9 +31,6 @@ public class JsonToTtl {
   public static String jsonToTtl(String json) {
     jsonObject = Json.read(json);
     Document schema = readSchema();
-    // Hieronder nog wijzigen: zoek identifiers tussen {} (in het schema)
-    // en vervang deze door de waardes in de json
-    rdfSubject.contains("{}");
     Matcher m = MY_PATTERN.matcher(rdfSubject);
     while (m.find()) {
       String identifier = "" + jsonObject.at(m.group(1)).getValue();
@@ -45,6 +42,7 @@ public class JsonToTtl {
     rdfSubject = rdfSubject.replace("{id}", id);
     String ttl = "<" + rdfSubject + "> a <" + rdfType + ">";
     for (Map.Entry<String, String> entry : predicates.entrySet()) {
+      // ook hier {identifiers} vervangen
       ttl += ";\n  <" + entry.getKey() + "> \"" + entry.getValue() + "\"";
     }
     ttl += ".";

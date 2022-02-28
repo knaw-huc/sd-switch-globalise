@@ -18,7 +18,7 @@ public class JsonToTtlTest {
     Assert.assertEquals(expectedResult, result);
   }
 
-  // @Test
+  @Test
   public void runTestSchema() {
     Document doc = JsonToTtl.readSchema();
     System.out.println("Root Element :" + doc.getDocumentElement().getNodeName());
