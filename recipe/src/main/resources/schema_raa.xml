@@ -9,7 +9,9 @@
       <voornaam s:min="0" s:max="1" s:datatype="text" rdf:predicate="pnv:givenName"/>
       <tussenvoegsel s:min="0" s:max="1" s:datatype="text"/>
       <geslachtsnaam s:min="0" s:max="1" s:datatype="text"/>
-      <geboortedatum s:min="0" s:max="1" s:datatype="date"/>
+      <geboortedatum s:min="0" s:max="1" s:datatype="date"
+         rdf:predicate="http://example.com/birthDate"
+         rdf:object="https://humanities.knaw.nl/date/{.}"/>/>
       <geboortedatum_als_bekend s:min="0" s:max="1" s:datatype="text"/>
       <geboorteplaats s:min="0" s:max="1" s:datatype="text"/>
       <doopjaar s:min="0" s:max="1" s:datatype="integer"
@@ -18,10 +20,10 @@
       <overlijdensdatum s:min="0" s:max="1" s:datatype="date"/>
       <overlijdensdatum_als_bekend s:min="0" s:max="1" s:datatype="text"/>
       <overlijdensplaats s:min="0" s:max="1" s:datatype="text"/>
-      <adellijketitel s:min="0" s:max="1" s:datatype="enum" rdf:predicate="http://example.com/title"
+      <adellijke_titel s:min="0" s:max="1" s:datatype="enum" rdf:predicate="http://example.com/title"
         rdf:object="https://humanities.knaw.nl/title/{.}">
         <s:instance/>
-      </adellijketitel>
+      </adellijke_titel>
       <academischetitel s:min="0" s:max="1" s:datatype="enum">
         <s:instance/>
       </academischetitel>

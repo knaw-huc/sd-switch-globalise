@@ -24,7 +24,7 @@ public class JsonToTtl {
   static String rdfSubject = "";
   static String rdfType = "";
   static Pattern MY_PATTERN = Pattern.compile("\\{(.*?)\\}");
-  static HashMap<String, String> predicates = new HashMap<String, String>();
+  static HashMap<String, String[]> predicates = new HashMap<String, String[]>();
   private static Json jsonObject;
 
 
@@ -41,9 +41,29 @@ public class JsonToTtl {
     String id = "" + jsonObject.at("id").getValue();
     rdfSubject = rdfSubject.replace("{id}", id);
     String ttl = "<" + rdfSubject + "> a <" + rdfType + ">";
-    for (Map.Entry<String, String> entry : predicates.entrySet()) {
+    for (Map.Entry<String, String[]> entry : predicates.entrySet()) {
       // ook hier {identifiers} vervangen
-      ttl += ";\n  <" + entry.getKey() + "> \"" + entry.getValue() + "\"";
+      String key = entry.getKey();
+      String value = entry.getValue()[0];
+      String node = entry.getValue()[1];
+      String temp = "";
+      m = MY_PATTERN.matcher(node);
+      if (node.contains("{.}")) {
+        temp += "<" + node.replace("{.}",value) + ">";
+        value = "";
+      }
+      while (m.find()) {
+        try {
+          String identifier = "" + jsonObject.at(m.group(1)).getValue();
+          key = node.replace("{" + m.group(1) + "}", identifier) + "/"+ value;
+        } catch (NullPointerException npe) {
+        // do nothing
+        }
+      }
+      if (value!="") {
+        value = "\"" + value + "\"";
+      }
+      ttl += ";\n  <" + key + "> " + temp + value;
     }
     ttl += ".";
     return ttl;
@@ -69,10 +89,15 @@ public class JsonToTtl {
           if (children.item(temp).getNodeType() == Node.ELEMENT_NODE) {
             Element child = (Element) children.item(temp);
             String nodePredicate = child.getAttribute("rdf:predicate");
+            String nodeObject = child.getAttribute("rdf:object");
+            if (nodeObject==null) {
+              nodeObject = "";
+            }
             if (nodePredicate != "") {
               String nodeName = child.getNodeName();
               try {
-                predicates.put(nodePredicate, "" + jsonObject.at(nodeName).getValue());
+                String[] temp_2 =  {"" + jsonObject.at(nodeName).getValue(), nodeObject};
+                predicates.put(nodePredicate, temp_2);
               } catch (NullPointerException npe) {
                 // predicates.put(nodePredicate, "" + nodeName);
               }

@@ -1,6 +1,7 @@
 package org.knaw.huc.sdswitch.recipe;
 
 // import org.json.JSONException;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.w3c.dom.Document;
@@ -13,7 +14,7 @@ public class JsonToTtlTest {
     String expectedResult = "<https://humanities.knaw.nl/raa/person/1> a <https://humanities.knaw.nl/person>;\n" +
         // "  <adellijketitel> \"http://example.com/title\";\n" +
         "  <pnv:givenName> \"Willem Frederik\".";
-        // "  <doopjaar> \"http://example.com/baptismDate\".";
+    // "  <doopjaar> \"http://example.com/baptismDate\".";
     String result = JsonToTtl.jsonToTtl(json);
     Assert.assertEquals(expectedResult, result);
   }
@@ -24,14 +25,32 @@ public class JsonToTtlTest {
     System.out.println("Root Element :" + doc.getDocumentElement().getNodeName());
     String result = doc.getDocumentElement().getNodeName();
     Assert.assertEquals("s:S", result);
-    // NodeList list = doc.getElementsByTagName("persoon");
-    // Node node = list.item(0);
-    // if (node.getNodeType() == Node.ELEMENT_NODE) {
-    //   Element element = (Element) node;
-    //   String rdfSubject = element.getAttribute("rdf:subject");
-    //   String rdfType = element.getAttribute("rdf:type");
-      Assert.assertEquals("https://humanities.knaw.nl/raa/person/{id}", JsonToTtl.rdfSubject);
-      Assert.assertEquals("https://humanities.knaw.nl/person", JsonToTtl.rdfType);
-    // }
+    Assert.assertEquals("https://humanities.knaw.nl/raa/person/{id}", JsonToTtl.rdfSubject);
+    Assert.assertEquals("https://humanities.knaw.nl/person", JsonToTtl.rdfType);
+  }
+
+  @Test
+  public void runTestElements() {
+    String json = "{ \"id\":3233, \"voornaam\":\"Dirk\", " +
+        // "\"adellijke_titel\":\"baron\"," +
+        "\"geboortedatum\":\"1746-04-12\" }";
+    String expectedResult = "<https://humanities.knaw.nl/raa/person/3233> a <https://humanities.knaw.nl/person>;\n" +
+        "  <pnv:givenName> \"Dirk\";\n" +
+        "  <http://example.com/birthDate> <https://humanities.knaw.nl/date/1746-04-12>."; // +
+        // "  <adellijketitel> \"http://example.com/title/baron\";\n";
+    String result = JsonToTtl.jsonToTtl(json);
+    Assert.assertEquals(expectedResult, result);
   }
 }
+//{"opmerkingen":"Adelspredicaat: 1814/adelstitel: 1819.rnHeerlijkheden: verwerving Kijfhoek 1768.",
+// "overlijdensjaar":"1819","tussenvoegsel":"van","geslachtsnaam":"Boetzelaer","periode":"2",
+// "academische_titel":"mr.","adelspredikaat":null,
+// "adellijke_titel":"baron",
+// "geboortemaand":"4",
+// "id":3233,"doopjaar":0,"geboorteplaats":"Leiden",
+// "overlijdensdatum":"1819-11-05","eindcontrole":null,"old_idregent":"negentiende_eeuw_2692",
+// "old_idadellijketitel":"negentiende_eeuw_9","adel":1,"overlijdensmaand":"11","old_idacademischetitel":
+// "negentiende_eeuw_2","geboortedag":"12","searchable":"van Boetzelaer",
+// "geboortedatum":"1746-04-12","overlijdensplaats":"'s-Gravenhage","overlijdensdag":"5",
+// "voornaam":"Dirk",
+// "overlijdensdatum_als_bekend":null,"heerlijkheid":null,"geboortedatum_als_bekend":null,"geboortejaar":"1746"}
