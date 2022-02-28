@@ -14,14 +14,16 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class JsonToTtl {
 
   static String rdfSubject = "";
   static String rdfType = "";
+  static Pattern MY_PATTERN = Pattern.compile("\\{(.*?)\\}");
   static HashMap<String, String> predicates = new HashMap<String, String>();
   private static Json jsonObject;
 
@@ -31,6 +33,14 @@ public class JsonToTtl {
     Document schema = readSchema();
     // Hieronder nog wijzigen: zoek identifiers tussen {} (in het schema)
     // en vervang deze door de waardes in de json
+    rdfSubject.contains("{}");
+    Matcher m = MY_PATTERN.matcher(rdfSubject);
+    while (m.find()) {
+      String identifier = "" + jsonObject.at(m.group(1)).getValue();
+      rdfSubject = rdfSubject.replace("{"+m.group(1)+"}", identifier);
+      // String s = m.group(1);
+      // s now contains "BAR"
+    }
     String id = "" + jsonObject.at("id").getValue();
     rdfSubject = rdfSubject.replace("{id}", id);
     String ttl = "<" + rdfSubject + "> a <" + rdfType + ">";
@@ -58,7 +68,6 @@ public class JsonToTtl {
         rdfType = element.getAttribute("rdf:type");
         NodeList children = node.getChildNodes();
         for (int temp = 0; temp < children.getLength(); temp++) {
-          //   short nodeType = children.item(temp).getNodeType();
           if (children.item(temp).getNodeType() == Node.ELEMENT_NODE) {
             Element child = (Element) children.item(temp);
             String nodePredicate = child.getAttribute("rdf:predicate");
