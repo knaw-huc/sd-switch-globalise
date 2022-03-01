@@ -32,12 +32,12 @@ public class JsonToTtlTest {
   @Test
   public void runTestElements() {
     String json = "{ \"id\":3233, \"voornaam\":\"Dirk\", " +
-        // "\"adellijke_titel\":\"baron\"," +
+        "\"adellijke_titel\":\"baron\"," +
         "\"geboortedatum\":\"1746-04-12\" }";
     String expectedResult = "<https://humanities.knaw.nl/raa/person/3233> a <https://humanities.knaw.nl/person>;\n" +
         "  <pnv:givenName> \"Dirk\";\n" +
-        "  <http://example.com/birthDate> <https://humanities.knaw.nl/date/1746-04-12>."; // +
-        // "  <adellijketitel> \"http://example.com/title/baron\";\n";
+        "  <http://example.com/birthDate> <https://humanities.knaw.nl/date/1746-04-12>;\n"  +
+        "  <http://example.com/title> <https://humanities.knaw.nl/title/baron>.";
     String result = JsonToTtl.jsonToTtl(json);
     Assert.assertEquals(expectedResult, result);
   }
