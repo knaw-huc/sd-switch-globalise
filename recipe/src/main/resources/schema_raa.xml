@@ -5,7 +5,7 @@
       rdf:type="https://humanities.knaw.nl/person">
       <id s:min="1" s:max="1" s:datatype="integer"/>
       <adel s:min="0" s:max="1" s:datatype="integer"/>
-      <heerlijkheid s:min="0" s:max="1" s:datatype="text"/>
+      <heerlijkheid s:min="0" s:max="1" s:datatype="text" rdf:predicate="https://humanities.knaw.nl/heerlijkheid"/>
       <voornaam s:min="0" s:max="1" s:datatype="text" rdf:predicate="pnv:givenName"/>
       <tussenvoegsel s:min="0" s:max="1" s:datatype="text" rdf:predicate="pnv:surnamePrefix"/>
       <geslachtsnaam s:min="0" s:max="1" s:datatype="text" rdf:predicate="pnv:baseSurname"/>
@@ -13,13 +13,19 @@
          rdf:predicate="http://example.com/birthDate"
          rdf:object="https://humanities.knaw.nl/date/{.}"/>/>
       <geboortedatum_als_bekend s:min="0" s:max="1" s:datatype="text"/>
-      <geboorteplaats s:min="0" s:max="1" s:datatype="text"/>
+      <geboorteplaats s:min="0" s:max="1" s:datatype="text"
+         rdf:predicate="http://example.com/birthPlace"
+         rdf:object="https://humanities.knaw.nl/place/{.}"/>
       <doopjaar s:min="0" s:max="1" s:datatype="integer"
         rdf:predicate="http://example.com/baptismDate"
         rdf:object="https://humanities.knaw.nl/year/{.}"/>
-      <overlijdensdatum s:min="0" s:max="1" s:datatype="date"/>
+      <overlijdensdatum s:min="0" s:max="1" s:datatype="date"
+        rdf:predicate="http://example.com/deathDate"
+        rdf:object="https://humanities.knaw.nl/date/{.}"/>/>
       <overlijdensdatum_als_bekend s:min="0" s:max="1" s:datatype="text"/>
-      <overlijdensplaats s:min="0" s:max="1" s:datatype="text"/>
+      <overlijdensplaats s:min="0" s:max="1" s:datatype="text"
+        rdf:predicate="http://example.com/deathPlace"
+        rdf:object="https://humanities.knaw.nl/place/{.}"/>
       <adellijke_titel s:min="0" s:max="1" s:datatype="enum" rdf:predicate="pnv:infixTitle"
         rdf:object="https://humanities.knaw.nl/title/{.}">
         <s:instance/>
@@ -28,18 +34,18 @@
         rdf:object="https://humanities.knaw.nl/title/{.}">
         <s:instance/>
       </academische_titel>
-      <opmerkingen s:min="0" s:max="1" s:datatype="text"/>
+      <opmerkingen s:min="0" s:max="1" s:datatype="text" rdf:predicate="https://humanities.knaw.nl/remarks"/>
       <adelspredikaat s:min="0" s:max="1" s:datatype="enum">
         <s:instance/>
       </adelspredikaat>
-      <eindcontrole s:min="0" s:max="1" s:datatype="text"/>
+      <eindcontrole s:min="0" s:max="1" s:datatype="text" rdf:predicate="https://humanities.knaw.nl/endcontrol"/>
       <geboorte s:min="0" s:max="1" s:datatype="date"/>
       <old_idacademischetitel s:min="0" s:max="1" s:datatype="text"/>
       <old_idadellijketitel s:min="0" s:max="1" s:datatype="text"/>
       <old_idregent s:min="0" s:max="1" s:datatype="text"/>
       <overlijden s:min="0" s:max="1" s:datatype="date"/>
-      <periode s:min="0" s:max="1" s:datatype="text"/>
-      <searchable s:min="0" s:max="1" s:datatype="text"/>
+      <periode s:min="0" s:max="1" s:datatype="text" rdf:predicate="https://humanities.knaw.nl/period"/>
+      <searchable s:min="0" s:max="1" s:datatype="text" rdf:predicate="https://humanities.knaw.nl/searchable"/>
       <aanstellingen s:min="0">
         <aanstelling>
           <id s:min="1" s:max="1" s:datatype="integer"/>
