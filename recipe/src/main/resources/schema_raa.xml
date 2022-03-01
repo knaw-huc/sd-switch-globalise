@@ -7,8 +7,8 @@
       <adel s:min="0" s:max="1" s:datatype="integer"/>
       <heerlijkheid s:min="0" s:max="1" s:datatype="text"/>
       <voornaam s:min="0" s:max="1" s:datatype="text" rdf:predicate="pnv:givenName"/>
-      <tussenvoegsel s:min="0" s:max="1" s:datatype="text"/>
-      <geslachtsnaam s:min="0" s:max="1" s:datatype="text"/>
+      <tussenvoegsel s:min="0" s:max="1" s:datatype="text" rdf:predicate="pnv:surnamePrefix"/>
+      <geslachtsnaam s:min="0" s:max="1" s:datatype="text" rdf:predicate="pnv:baseSurname"/>
       <geboortedatum s:min="0" s:max="1" s:datatype="date"
          rdf:predicate="http://example.com/birthDate"
          rdf:object="https://humanities.knaw.nl/date/{.}"/>/>
@@ -20,13 +20,14 @@
       <overlijdensdatum s:min="0" s:max="1" s:datatype="date"/>
       <overlijdensdatum_als_bekend s:min="0" s:max="1" s:datatype="text"/>
       <overlijdensplaats s:min="0" s:max="1" s:datatype="text"/>
-      <adellijke_titel s:min="0" s:max="1" s:datatype="enum" rdf:predicate="http://example.com/title"
+      <adellijke_titel s:min="0" s:max="1" s:datatype="enum" rdf:predicate="pnv:infixTitle"
         rdf:object="https://humanities.knaw.nl/title/{.}">
         <s:instance/>
       </adellijke_titel>
-      <academischetitel s:min="0" s:max="1" s:datatype="enum">
+      <academische_titel s:min="0" s:max="1" s:datatype="enum" rdf:predicate="http://example.com/title"
+        rdf:object="https://humanities.knaw.nl/title/{.}">
         <s:instance/>
-      </academischetitel>
+      </academische_titel>
       <opmerkingen s:min="0" s:max="1" s:datatype="text"/>
       <adelspredikaat s:min="0" s:max="1" s:datatype="enum">
         <s:instance/>
