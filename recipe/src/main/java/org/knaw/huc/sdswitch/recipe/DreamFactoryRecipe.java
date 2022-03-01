@@ -111,6 +111,8 @@ public class DreamFactoryRecipe implements Recipe<DreamFactoryRecipe.DreamFactor
                 jsonObject.set("adellijke_titel", null);
             }
 
+            String ttlString = JsonToTtl.jsonToTtl(jsonObject.toString());
+
             InputStream is = new ByteArrayInputStream(jsonObject.toString().getBytes());
             return RecipeResponse.withBody(is, conn.getHeaderField("Content-Type"));
         } catch (IOException ex) {
