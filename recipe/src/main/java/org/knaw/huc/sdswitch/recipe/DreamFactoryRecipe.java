@@ -24,6 +24,8 @@ import java.util.stream.Collectors;
 import mjson.Json;
 
 public class DreamFactoryRecipe implements Recipe<DreamFactoryRecipe.DreamFactoryConfig> {
+    private String jsonOrTtl = "json";
+
     public record DreamFactoryConfig(String type, String baseUrl, String accept, String apiKey, String related) {
     }
 
@@ -111,12 +113,25 @@ public class DreamFactoryRecipe implements Recipe<DreamFactoryRecipe.DreamFactor
                 jsonObject.set("adellijke_titel", null);
             }
 
-            String ttlString = JsonToTtl.jsonToTtl(jsonObject.toString());
-
-            InputStream is = new ByteArrayInputStream(jsonObject.toString().getBytes());
+            InputStream is = null;
+            if (jsonOrTtl=="ttl") {
+                String ttlString = JsonToTtl.jsonToTtl(jsonObject.toString());
+                is = new ByteArrayInputStream(ttlString.getBytes());
+            }
+            if (jsonOrTtl=="json") {
+                is = new ByteArrayInputStream(jsonObject.toString().getBytes());
+            }
             return RecipeResponse.withBody(is, conn.getHeaderField("Content-Type"));
         } catch (IOException ex) {
             throw new RecipeException(ex.getMessage(), ex);
         }
+    }
+
+    public void setTtl() {
+        jsonOrTtl = "ttl";
+    }
+
+    public void setJson() {
+        jsonOrTtl = "json";
     }
 }
