@@ -53,7 +53,9 @@ public class DreamFactoryRecipe implements Recipe<DreamFactoryRecipe.DreamFactor
 
             String accept = Saxon.xpath2string(config, "accept");
 
-            jsonOrTtl = Saxon.xpath2string(config, "json-or-ttl");
+            if (Saxon.xpath2string(config, "json-or-ttl")!=null) {
+                jsonOrTtl = Saxon.xpath2string(config, "json-or-ttl");
+            }
 
             return new DreamFactoryConfig(type, baseUrl, accept, apiKey, related);
         } catch (SaxonApiException ex) {
