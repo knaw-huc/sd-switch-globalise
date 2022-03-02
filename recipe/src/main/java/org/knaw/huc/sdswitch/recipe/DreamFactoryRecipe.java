@@ -116,11 +116,11 @@ public class DreamFactoryRecipe implements Recipe<DreamFactoryRecipe.DreamFactor
             }
 
             InputStream is = null;
-            if (jsonOrTtl=="ttl") {
+            if (jsonOrTtl.equals("ttl")) {
                 String ttlString = JsonToTtl.jsonToTtl(jsonObject.toString());
                 is = new ByteArrayInputStream(ttlString.getBytes());
             }
-            if (jsonOrTtl=="json") {
+            if (jsonOrTtl.equals("json")) {
                 is = new ByteArrayInputStream(jsonObject.toString().getBytes());
             }
             return RecipeResponse.withBody(is, conn.getHeaderField("Content-Type"));
