@@ -70,13 +70,13 @@ public class JsonToTtl {
   }
 
   public static Document readSchema() {
-    String filename = "src/main/resources/schema_raa.xml";
     DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
     Document doc = null;
 
     try {
       dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
       DocumentBuilder db = dbf.newDocumentBuilder();
+      // get schema_raa.xml from config
       doc = db.parse(JsonToTtl.class.getClassLoader().getResourceAsStream("schema_raa.xml"));
       NodeList list = doc.getElementsByTagName("persoon");
       Node node = list.item(0);

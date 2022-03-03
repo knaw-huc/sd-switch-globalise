@@ -66,72 +66,73 @@ public class DreamFactoryRecipe implements Recipe<DreamFactoryRecipe.DreamFactor
     @Override
     public RecipeResponse withData(RecipeData<DreamFactoryConfig> data) throws RecipeException {
         try {
-            String url = String.format("%s/api/v2/%s/_table/%s",
-                    data.config().baseUrl(), data.config().type(),
-                    URLEncoder.encode(data.pathParams().get("table"), StandardCharsets.UTF_8.toString()));
+          String url = String.format("%s/api/v2/%s/_table/%s",
+              data.config().baseUrl(), data.config().type(),
+              URLEncoder.encode(data.pathParams().get("table"), StandardCharsets.UTF_8.toString()));
 
-            if (data.pathParams().get("id") != null) {
-                String related = data.config().related();
-                if (related == null)
-                    related = "";
-                else
-                    related = "&related=" + URLEncoder.encode(related, StandardCharsets.UTF_8.toString());
-                // related=* gives 'not implemented'
-                url += String.format("/%s?fields=*%s",
-                        URLEncoder.encode(data.pathParams().get("id"), StandardCharsets.UTF_8.toString()),
-                        related);
+          if (data.pathParams().get("id") != null) {
+            String related = data.config().related();
+            if (related == null) {
+              related = "";
+            } else {
+              related = "&related=" + URLEncoder.encode(related, StandardCharsets.UTF_8.toString());
             }
+            // related=* gives 'not implemented'
+            url += String.format("/%s?fields=*%s",
+                URLEncoder.encode(data.pathParams().get("id"), StandardCharsets.UTF_8.toString()),
+                related);
+          }
 
-            HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
-            conn.setRequestMethod("GET");
-            conn.setRequestProperty("Accept", data.config().accept() != null && !data.config().accept().isEmpty()
-                    ? data.config().accept() : "application/json");
-            conn.setRequestProperty("X-DreamFactory-API-Key", data.config().apiKey());
+          HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
+          conn.setRequestMethod("GET");
+          conn.setRequestProperty("Accept", data.config().accept() != null && !data.config().accept().isEmpty()
+              ? data.config().accept() : "application/json");
+          conn.setRequestProperty("X-DreamFactory-API-Key", data.config().apiKey());
 
-            if (conn.getResponseCode() != 200)
-                throw new RecipeException(conn.getResponseMessage(), conn.getResponseCode());
+          if (conn.getResponseCode() != 200) {
+            throw new RecipeException(conn.getResponseMessage(), conn.getResponseCode());
+          }
 
-            String text = new BufferedReader(
-                    new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))
-                    .lines()
-                    .collect(Collectors.joining("\n"));
+          String text = new BufferedReader(
+              new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))
+              .lines()
+              .collect(Collectors.joining("\n"));
 
-            Json jsonObject = Json.read(text);
-            try {
-                Json acadTitleObj = jsonObject.atDel("academische_titel_by_academischetitel_id");
-                jsonObject.atDel("academischetitel_id");
-                jsonObject.set("academische_titel", acadTitleObj.at("naam").getValue());
-            } catch (UnsupportedOperationException | NullPointerException ex) {
-                // academischetitel_id==null
-                // other empty fields contain null, so:
-                jsonObject.set("academische_titel", null);
-            }
+          Json jsonObject = Json.read(text);
+          // Get the reference from config
+          String reference = "academische_titel_by_academischetitel_id";
+          fillReference(jsonObject, reference);
+          reference = "adellijke_titel_by_adellijketitel_id";
+          fillReference(jsonObject, reference);
 
-            try {
-                Json adelsTitleObj = jsonObject.atDel("adellijke_titel_by_adellijketitel_id");
-                jsonObject.atDel("adellijketitel_id");
-                jsonObject.set("adellijke_titel", adelsTitleObj.at("naam").getValue());
-            } catch (UnsupportedOperationException | NullPointerException ex) {
-                // adellijketitel_id==null
-                // other empty fields contain null, so:
-                jsonObject.set("adellijke_titel", null);
-            }
-
-            InputStream is = null;
-            if (jsonOrTtl.equals("ttl")) {
-                String ttlString = JsonToTtl.jsonToTtl(jsonObject.toString());
-                is = new ByteArrayInputStream(ttlString.getBytes());
-            }
-            if (jsonOrTtl.equals("json")) {
-                is = new ByteArrayInputStream(jsonObject.toString().getBytes());
-            }
-            return RecipeResponse.withBody(is, conn.getHeaderField("Content-Type"));
+          InputStream is = null;
+          if (jsonOrTtl.equals("ttl")) {
+            String ttlString = JsonToTtl.jsonToTtl(jsonObject.toString());
+            is = new ByteArrayInputStream(ttlString.getBytes());
+          }
+          if (jsonOrTtl.equals("json")) {
+            is = new ByteArrayInputStream(jsonObject.toString().getBytes());
+          }
+          return RecipeResponse.withBody(is, conn.getHeaderField("Content-Type"));
         } catch (IOException ex) {
             throw new RecipeException(ex.getMessage(), ex);
         }
     }
 
-    public void setTtl() {
+  static void fillReference(Json jsonObject, String reference) {
+    String[] toFrom = new String[2];
+    try {
+      Json referedObject = jsonObject.atDel(reference);
+      toFrom = reference.split("_by_");
+      jsonObject.atDel(toFrom[1]);
+      jsonObject.set(toFrom[0], referedObject.at("naam").getValue());
+    } catch (UnsupportedOperationException | NullPointerException ex) {
+      // other empty fields contain null, so:
+      jsonObject.set(toFrom[0], null);
+    }
+  }
+
+  public void setTtl() {
         jsonOrTtl = "ttl";
     }
 
