@@ -99,11 +99,15 @@ public class DreamFactoryRecipe implements Recipe<DreamFactoryRecipe.DreamFactor
               .collect(Collectors.joining("\n"));
 
           Json jsonObject = Json.read(text);
-          // Get the reference from config
-          String reference = "academische_titel_by_academischetitel_id";
-          fillReference(jsonObject, reference);
-          reference = "adellijke_titel_by_adellijketitel_id";
-          fillReference(jsonObject, reference);
+          // Get the references from config
+          String related = data.config().related();
+          if (related == null) {
+            related = "";
+          }
+          String[] relations = related.split(",");
+          for(int i=0; i<relations.length; i++) {
+            fillReference(jsonObject, relations[i]);
+          }
 
           InputStream is = null;
           if (jsonOrTtl.equals("ttl")) {
