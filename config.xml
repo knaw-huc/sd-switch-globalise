@@ -10,8 +10,20 @@
     <api-key>823125db5e6776687eb50150b47945642d12341fa072286a4174db44cc9ab637</api-key>
     <related>academische_titel_by_academischetitel_id,adellijke_titel_by_adellijketitel_id</related>
   </switch>
-  <switch recipe="org.knaw.huc.sdswitch.recipe.DreamFactoryRecipe" url-pattern="/ttl/raa/{table}/{id}">
+<!--  <switch recipe="org.knaw.huc.sdswitch.recipe.DreamFactoryRecipe" url-pattern="/raa/{table}/{id}(.ttl)?" accept-pattern="text/ttl" combine-pattern="or">-->
+  <switch recipe="org.knaw.huc.sdswitch.recipe.DreamFactoryRecipe">
     <type>postgres</type>
+    <sub-switch>
+      <url pattern="/raa/{table}/{id}" accept="text/ttl"/>
+      <url pattern="/raa/{table}/{id}.ttl"/>
+      <json-or-ttl>ttl</json-or-ttl>
+    </sub-switch>
+    <sub-switch>
+      <url pattern="/raa/{table}/{id}" accept="text/html"/>
+      <url pattern="/raa/{table}/{id}.htm"/>
+      <url pattern="/raa/{table}/{id}.html"/>
+      <json-or-ttl>html</json-or-ttl>
+    </sub-switch>
     <base-url>http://n-195-169-89-123.diginfra.net:8888</base-url>
     <api-key>823125db5e6776687eb50150b47945642d12341fa072286a4174db44cc9ab637</api-key>
     <related>academische_titel_by_academischetitel_id,adellijke_titel_by_adellijketitel_id</related>
