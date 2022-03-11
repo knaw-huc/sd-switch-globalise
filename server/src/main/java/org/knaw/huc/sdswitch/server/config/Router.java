@@ -26,7 +26,7 @@ public class Router {
                         .map(MimeTypeQFactor::create)
                         .sorted()
                         .map(mime -> switches.stream().filter(aSwitch ->
-                                aSwitch.acceptsMimeType(mime.mimeType())).findFirst())
+                                mime.matches(aSwitch.getAcceptMimeType())).findFirst())
                         .filter(Optional::isPresent)
                         .map(Optional::get)
                         .findFirst();
@@ -47,14 +47,23 @@ public class Router {
         matchingSwitch.handle(ctx);
     }
 
-    private record MimeTypeQFactor(String mimeType, float qFactor) implements Comparable<MimeTypeQFactor> {
+    private record MimeTypeQFactor(String type, String subType, float qFactor) implements Comparable<MimeTypeQFactor> {
         private static final Pattern Q_FACTOR_PATTERN = Pattern.compile("q=(0\\.\\d)");
 
         public static MimeTypeQFactor create(String acceptMimeType) {
             String[] mimeAndParams = acceptMimeType.split(";", 2);
             Matcher matcher = Q_FACTOR_PATTERN.matcher(mimeAndParams.length == 2 ? mimeAndParams[1] : "");
             float qFactor = matcher.find() && matcher.group(1) != null ? Float.parseFloat(matcher.group(1)) : 1;
-            return new MimeTypeQFactor(mimeAndParams[0].trim(), qFactor);
+
+            String[] typeAndSubType = mimeAndParams[0].split("/", 2);
+            return new MimeTypeQFactor(typeAndSubType[0].trim(), typeAndSubType[1].trim(), qFactor);
+        }
+
+        public boolean matches(String mimeType) {
+            String[] typeAndSubType = mimeType.split("/", 2);
+            boolean typeMatches = type.equals("*") || type.equals(typeAndSubType[0].trim());
+            boolean subTypeMatches = subType.equals("*") || subType.equals(typeAndSubType[1].trim());
+            return typeMatches && subTypeMatches;
         }
 
         @Override

@@ -11,13 +11,13 @@ import java.util.regex.Pattern;
 public class Switch<C> {
     private final Recipe<C> recipe;
     private final String urlPattern;
-    private final Pattern acceptPattern;
+    private final String acceptMimeType;
     private final C config;
 
-    public Switch(Recipe<C> recipe, String urlPattern, Pattern acceptPattern, C config) {
+    public Switch(Recipe<C> recipe, String urlPattern, String acceptMimeType, C config) {
         this.recipe = recipe;
         this.urlPattern = urlPattern;
-        this.acceptPattern = acceptPattern;
+        this.acceptMimeType = acceptMimeType;
         this.config = config;
     }
 
@@ -25,12 +25,8 @@ public class Switch<C> {
         return urlPattern;
     }
 
-    public Pattern getAcceptPattern() {
-        return acceptPattern;
-    }
-
-    public boolean acceptsMimeType(String mimeType) {
-        return acceptPattern.matcher(mimeType).matches();
+    public String getAcceptMimeType() {
+        return acceptMimeType;
     }
 
     public void handle(Context context) {
@@ -56,7 +52,7 @@ public class Switch<C> {
         }
     }
 
-    public static <C> Switch<C> createSwitch(Recipe<C> recipe, String urlPattern, Pattern acceptPattern, C config) {
-        return new Switch<>(recipe, urlPattern, acceptPattern, config);
+    public static <C> Switch<C> createSwitch(Recipe<C> recipe, String urlPattern, String acceptMimeType, C config) {
+        return new Switch<>(recipe, urlPattern, acceptMimeType, config);
     }
 }

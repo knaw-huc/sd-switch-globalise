@@ -71,20 +71,19 @@ public class SwitchLoader {
                 throw new SwitchException("Switch is missing a 'pattern' attribute");
 
             String urlPattern = Saxon.xpath2string(urlItem, "@pattern");
-            Pattern acceptPattern = Saxon.hasAttribute(urlItem, "accept")
-                    ? Pattern.compile(Saxon.xpath2string(urlItem, "@accept"))
-                    : null;
+            String acceptMimeType = Saxon.hasAttribute(urlItem, "accept")
+                    ? Saxon.xpath2string(urlItem, "@accept") : null;
 
             Set<Switch<?>> urlSwitches = switches.getOrDefault(urlPattern, new HashSet<>());
-            if (urlSwitches.stream().anyMatch(aSwitch -> aSwitch.getAcceptPattern() == null))
+            if (urlSwitches.stream().anyMatch(aSwitch -> aSwitch.getAcceptMimeType() == null))
                 throw new SwitchException("There is already a switch configured with URL pattern '" + urlPattern + "'!");
 
-            urlSwitches.add(createSwitch(recipe, urlPattern, acceptPattern, config, parentConfig));
+            urlSwitches.add(createSwitch(recipe, urlPattern, acceptMimeType, config, parentConfig));
             switches.putIfAbsent(urlPattern, urlSwitches);
         }
     }
 
-    private static <C> Switch<C> createSwitch(Recipe<C> recipe, String urlPattern, Pattern acceptPattern,
+    private static <C> Switch<C> createSwitch(Recipe<C> recipe, String urlPattern, String acceptMimeType,
                                               XdmItem config, XdmItem parentConfig)
             throws RecipeParseException, SwitchException {
         Set<String> pathParams = PATH_PATTERN
@@ -102,6 +101,6 @@ public class SwitchLoader {
         if (missingPathParam.isPresent())
             throw new SwitchException(String.format("Missing required path param '%s'", missingPathParam.get()));
 
-        return Switch.createSwitch(recipe, urlPattern, acceptPattern, recipe.parseConfig(config, parentConfig));
+        return Switch.createSwitch(recipe, urlPattern, acceptMimeType, recipe.parseConfig(config, parentConfig));
     }
 }
