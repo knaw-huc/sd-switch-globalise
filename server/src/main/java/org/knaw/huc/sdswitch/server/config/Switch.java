@@ -6,19 +6,31 @@ import org.knaw.huc.sdswitch.server.recipe.RecipeData;
 import org.knaw.huc.sdswitch.server.recipe.RecipeException;
 import org.knaw.huc.sdswitch.server.recipe.RecipeResponse;
 
+import java.util.regex.Pattern;
+
 public class Switch<C> {
     private final Recipe<C> recipe;
     private final String urlPattern;
+    private final Pattern acceptPattern;
     private final C config;
 
-    public Switch(Recipe<C> recipe, String urlPattern, C config) {
+    public Switch(Recipe<C> recipe, String urlPattern, Pattern acceptPattern, C config) {
         this.recipe = recipe;
         this.urlPattern = urlPattern;
+        this.acceptPattern = acceptPattern;
         this.config = config;
     }
 
     public String getUrlPattern() {
         return urlPattern;
+    }
+
+    public Pattern getAcceptPattern() {
+        return acceptPattern;
+    }
+
+    public boolean acceptsMimeType(String mimeType) {
+        return acceptPattern.matcher(mimeType).matches();
     }
 
     public void handle(Context context) {
@@ -44,7 +56,7 @@ public class Switch<C> {
         }
     }
 
-    public static <C> Switch<C> createSwitch(Recipe<C> recipe, String urlPattern, C config) {
-        return new Switch<>(recipe, urlPattern, config);
+    public static <C> Switch<C> createSwitch(Recipe<C> recipe, String urlPattern, Pattern acceptPattern, C config) {
+        return new Switch<>(recipe, urlPattern, acceptPattern, config);
     }
 }

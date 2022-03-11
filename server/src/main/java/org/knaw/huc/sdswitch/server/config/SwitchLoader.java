@@ -9,7 +9,9 @@ import org.knaw.huc.sdswitch.server.recipe.RecipeParseException;
 
 import javax.xml.transform.stream.StreamSource;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -27,26 +29,28 @@ public class SwitchLoader {
         recipes = Recipe.getRecipes();
     }
 
-    public Set<Switch<?>> loadSwitches(InputStream stream) throws SwitchException {
+    public Map<String, Set<Switch<?>>> loadSwitches(InputStream stream) throws SwitchException {
         try {
-            Set<Switch<?>> switches = new HashSet<>();
+            Map<String, Set<Switch<?>>> switches = new HashMap<>();
 
             XdmNode conf = Saxon.buildDocument(new StreamSource(stream));
             for (XdmItem switchItem : Saxon.xpathList(conf, "/sd-switch/switch")) {
                 if (!Saxon.hasAttribute(switchItem, "recipe"))
-                    throw new SwitchException("Switch is missing a 'recipe' attribute");
-
-                if (!Saxon.hasAttribute(switchItem, "url-pattern"))
-                    throw new SwitchException("Switch is missing an 'url-pattern' attribute");
+                    throw new SwitchException("A switch is missing a 'recipe' attribute");
 
                 String className = Saxon.xpath2string(switchItem, "@recipe");
                 if (!recipes.containsKey(className))
                     throw new SwitchException("Recipe '" + className + "' not found!");
 
                 Recipe<?> recipe = recipes.get(className);
-                String urlPattern = Saxon.xpath2string(switchItem, "@url-pattern");
 
-                switches.add(createSwitch(recipe, urlPattern, switchItem));
+                List<XdmItem> subSwitchItems = Saxon.xpathList(switchItem, "sub-switch");
+                if (subSwitchItems.isEmpty())
+                    withSwitchConfig(switches, recipe, switchItem, null);
+                else {
+                    for (XdmItem subSwitchItem : subSwitchItems)
+                        withSwitchConfig(switches, recipe, subSwitchItem, switchItem);
+                }
             }
 
             return switches;
@@ -55,7 +59,33 @@ public class SwitchLoader {
         }
     }
 
-    private static <C> Switch<C> createSwitch(Recipe<C> recipe, String urlPattern, XdmItem config)
+    private static <C> void withSwitchConfig(Map<String, Set<Switch<?>>> switches, Recipe<C> recipe,
+                                             XdmItem config, XdmItem parentConfig)
+            throws RecipeParseException, SwitchException, SaxonApiException {
+        List<XdmItem> urlItems = Saxon.xpathList(config, "url");
+        if (urlItems.isEmpty())
+            throw new SwitchException("A switch is missing at least one 'url' item");
+
+        for (XdmItem urlItem : urlItems) {
+            if (!Saxon.hasAttribute(urlItem, "pattern"))
+                throw new SwitchException("Switch is missing a 'pattern' attribute");
+
+            String urlPattern = Saxon.xpath2string(urlItem, "@pattern");
+            Pattern acceptPattern = Saxon.hasAttribute(urlItem, "accept")
+                    ? Pattern.compile(Saxon.xpath2string(urlItem, "@accept"))
+                    : null;
+
+            Set<Switch<?>> urlSwitches = switches.getOrDefault(urlPattern, new HashSet<>());
+            if (urlSwitches.stream().anyMatch(aSwitch -> aSwitch.getAcceptPattern() == null))
+                throw new SwitchException("There is already a switch configured with URL pattern '" + urlPattern + "'!");
+
+            urlSwitches.add(createSwitch(recipe, urlPattern, acceptPattern, config, parentConfig));
+            switches.putIfAbsent(urlPattern, urlSwitches);
+        }
+    }
+
+    private static <C> Switch<C> createSwitch(Recipe<C> recipe, String urlPattern, Pattern acceptPattern,
+                                              XdmItem config, XdmItem parentConfig)
             throws RecipeParseException, SwitchException {
         Set<String> pathParams = PATH_PATTERN
                 .matcher(urlPattern)
@@ -72,6 +102,6 @@ public class SwitchLoader {
         if (missingPathParam.isPresent())
             throw new SwitchException(String.format("Missing required path param '%s'", missingPathParam.get()));
 
-        return Switch.createSwitch(recipe, urlPattern, recipe.parseConfig(config));
+        return Switch.createSwitch(recipe, urlPattern, acceptPattern, recipe.parseConfig(config, parentConfig));
     }
 }
