@@ -77,6 +77,9 @@ public class JsonToTtl {
       dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
       DocumentBuilder db = dbf.newDocumentBuilder();
       // get schema_raa.xml from config
+      //jar:/schema_raa.xml  dan JsonToTtl.class.getClassLoader().getResourceAsStream("schema_raa.xml")
+      // geen jar: prefix dan je oude code
+      // new File(filename)
       doc = db.parse(JsonToTtl.class.getClassLoader().getResourceAsStream("schema_raa.xml"));
       NodeList list = doc.getElementsByTagName("persoon");
       Node node = list.item(0);
