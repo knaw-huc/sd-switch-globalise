@@ -11,7 +11,7 @@ import static java.util.stream.Collectors.toMap;
 public interface Recipe<C> {
     Set<String> requiredPathParams();
 
-    C parseConfig(XdmItem config) throws RecipeParseException;
+    C parseConfig(XdmItem config, XdmItem parentConfig) throws RecipeParseException;
 
     RecipeResponse withData(RecipeData<C> data) throws RecipeException;
 

@@ -16,7 +16,7 @@ public class HelloWorldRecipe implements Recipe<Void> {
     }
 
     @Override
-    public Void parseConfig(XdmItem config) {
+    public Void parseConfig(XdmItem config, XdmItem parentConfig) {
         return null;
     }
 
