@@ -138,6 +138,10 @@ public class DreamFactoryRecipe implements Recipe<DreamFactoryRecipe.DreamFactor
       if (data.config().jsonOrTtl().equals("json")) {
         is = new ByteArrayInputStream(jsonObject.toString().getBytes());
       }
+      if (data.config().jsonOrTtl().equals("html")) {
+        String htmlString = JsonToHtml.jsonToHtml(jsonObject.toString());
+        is = new ByteArrayInputStream(htmlString.getBytes());
+      }
       return RecipeResponse.withBody(is, conn.getHeaderField("Content-Type"));
     } catch (IOException ex) {
       throw new RecipeException(ex.getMessage(), ex);
