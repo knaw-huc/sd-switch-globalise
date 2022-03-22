@@ -20,6 +20,8 @@ import java.io.File;
 import java.util.Objects;
 import org.apache.commons.io.IOUtils;
 
+import static java.util.Objects.*;
+
 public class JsonToHtml {
 
   private static Json jsonObject;
@@ -40,7 +42,7 @@ public class JsonToHtml {
     }
     try {
       XsltTransformer toHtml = Saxon.buildTransformer(new File("src/main/resources/raa_xml2html.xsl")).load();
-      toHtml.setSource(IOUtils.toInputStream(jsonXML.toString(), "UTF-8"));
+      toHtml.setSource((Source) jsonXML);
     } catch (SaxonApiException e) {
       e.printStackTrace();
     }
