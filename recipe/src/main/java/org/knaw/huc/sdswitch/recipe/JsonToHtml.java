@@ -1,21 +1,18 @@
 package org.knaw.huc.sdswitch.recipe;
 
 import mjson.Json;
+import net.sf.saxon.s9api.QName;
+import net.sf.saxon.s9api.SaxonApiException;
+import net.sf.saxon.s9api.XdmValue;
+import net.sf.saxon.s9api.XsltCompiler;
+import net.sf.saxon.s9api.XsltExecutable;
+import net.sf.saxon.s9api.XsltTransformer;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
-import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import javax.xml.transform.stream.StreamSource;
+
+import net.sf.saxon.s9api.Processor;
 
 public class JsonToHtml {
 
@@ -24,14 +21,23 @@ public class JsonToHtml {
 
   public static String jsonToHtml(String json) {
     jsonObject = Json.read(json);
-    Document schema = readSchema();
+    Document schema = readSchema(json);
     return "";
   }
 
-  public static Document readSchema() {
+  public static Document readSchema(String json) {
     DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
     Document doc = null;
-
+    Processor processor = new Processor(true);
+    XsltCompiler xsltCompiler = processor.newXsltCompiler();
+    try {
+      XsltExecutable executable = xsltCompiler.compile(new StreamSource("raa_xml2html.xsl"));
+      XsltTransformer transfomer = executable.load();
+      transfomer.setParameter(new QName("json"), XdmValue.makeValue(json));
+      transfomer.transform();
+    } catch (SaxonApiException e) {
+      e.printStackTrace();
+    }
     return doc;
   }
 }
