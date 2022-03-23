@@ -3,6 +3,7 @@ package org.knaw.huc.sdswitch.recipe;
 import mjson.Json;
 import net.sf.saxon.s9api.QName;
 import net.sf.saxon.s9api.SaxonApiException;
+import net.sf.saxon.s9api.XdmNode;
 import net.sf.saxon.s9api.XdmValue;
 import net.sf.saxon.s9api.XsltCompiler;
 import net.sf.saxon.s9api.XsltExecutable;
@@ -12,15 +13,21 @@ import org.w3c.dom.Document;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Source;
+import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamSource;
 
 import net.sf.saxon.s9api.Processor;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Objects;
 import org.apache.commons.io.IOUtils;
 
 import static java.util.Objects.*;
+import static nl.mpi.tla.util.Saxon.getProcessor;
 
 public class JsonToHtml {
 
@@ -35,21 +42,32 @@ public class JsonToHtml {
     // CLARIN (https://nexus.clarin.eu/content/repositories/Clarin)
     XdmValue jsonXML = null;
     try {
-      jsonXML = Saxon.parseJson(json.toString());
+      jsonXML = Saxon.parseJson(json);
+      // System.out.println("XML["+xml.toString()+"]");
+      Saxon.save(((XdmNode) jsonXML).asSource(), new File("out.xml"));
     } catch (SaxonApiException e) {
       System.err.println("JSON to XML failed! ");
       e.printStackTrace();
     }
     try {
       XsltTransformer toHtml = Saxon.buildTransformer(new File("src/main/resources/raa_xml2html.xsl")).load();
-      toHtml.setSource((Source) jsonXML);
+      toHtml.setSource(((XdmNode)jsonXML).asSource());
+      toHtml.setDestination(getProcessor().newSerializer(new File("result.html")));
+      toHtml.transform();
     } catch (SaxonApiException e) {
       e.printStackTrace();
     }
 
     jsonObject = Json.read(json);
-    Document schema = readSchema(json);
-    return jsonXML.toString();
+    // Document schema = readSchema(json);
+    try {
+      String content = Files.readString(Path.of("out.xml"), StandardCharsets.UTF_8);
+      return content;
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
+    return "";
   }
 
   public static Document readSchema(String json) {
