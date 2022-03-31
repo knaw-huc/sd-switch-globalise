@@ -1,11 +1,8 @@
 package org.knaw.huc.sdswitch.recipe;
 
-// import org.json.JSONException;
-
 import mjson.Json;
 import org.junit.Assert;
 import org.junit.Test;
-import org.w3c.dom.Document;
 
 public class JsonToHtmlTest {
 
@@ -18,10 +15,10 @@ public class JsonToHtmlTest {
   }
 
   private String getExpectedTestOne() {
-    String expectedResult = "<html xmlns:js=\"http://www.w3.org/2005/xpath-functions\">\n" +
+    String expectedResult = "<!DOCTYPE HTML><html xmlns:js=\"http://www.w3.org/2005/xpath-functions\">\n" +
         "   <head>\n" +
         "      <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n" +
-        "      <title>Röell</title>\n" +
+        "      <title></title>\n" +
         "   </head>\n" +
         "   <style>\n" +
         "                table,\n" +
@@ -41,16 +38,15 @@ public class JsonToHtmlTest {
         "               <th>Veld</th>\n" +
         "               <th>Waarde</th>\n" +
         "            </tr>\n" +
-        "            \n" +
         "            <tr>\n" +
         "               <td>id</td>\n" +
         "               <td>1</td>\n" +
-        "            \n" +
+        "            </tr>\n" +
         "            <tr>\n" +
         "               <td>voornaam</td>\n" +
         "               <td>Willem Frederik</td>\n" +
         "            </tr>\n" +
-        "            </tbody>\n" +
+        "         </tbody>\n" +
         "      </table>\n" +
         "   </body>\n" +
         "</html>";
