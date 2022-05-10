@@ -1,56 +1,68 @@
 package org.knaw.huc.sdswitch.recipe;
 
-import mjson.Json;
+import net.sf.saxon.s9api.SaxonApiException;
+import net.sf.saxon.s9api.XsltTransformer;
+import nl.mpi.tla.util.Saxon;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
+
 public class JsonToHtmlTest {
+    private JsonToHtml toHtml;
 
-  @Test
-  public void runTestJsonHtml() {
-    String json = "{ \"id\":1, \"voornaam\":\"Willem Frederik\" }";
-    String expectedResult = getExpectedTestOne();
-    String result = JsonToHtml.jsonToHtml(json);
-    Assert.assertEquals(expectedResult, result);
-  }
+    @Before
+    public void init() throws SaxonApiException {
+        File file = new File("src/test/resources/raa_xml2html.xsl");
+        XsltTransformer toHtmlTransformer = Saxon.buildTransformer(file).load();
+        toHtml = new JsonToHtml(toHtmlTransformer);
+    }
 
-  private String getExpectedTestOne() {
-    String expectedResult = "<!DOCTYPE HTML><html xmlns:js=\"http://www.w3.org/2005/xpath-functions\">\n" +
-        "   <head>\n" +
-        "      <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n" +
-        "      <title></title>\n" +
-        "   </head>\n" +
-        "   <style>\n" +
-        "                table,\n" +
-        "                td,\n" +
-        "                th {\n" +
-        "                border: 1px solid;\n" +
-        "                border-collapse: collapse;\n" +
-        "                }\n" +
-        "                td {\n" +
-        "                padding: 0 1ex 0 1ex;\n" +
-        "                }\n" +
-        "            </style>\n" +
-        "   <body>\n" +
-        "      <table>\n" +
-        "         <tbody>\n" +
-        "            <tr>\n" +
-        "               <th>Veld</th>\n" +
-        "               <th>Waarde</th>\n" +
-        "            </tr>\n" +
-        "            <tr>\n" +
-        "               <td>id</td>\n" +
-        "               <td>1</td>\n" +
-        "            </tr>\n" +
-        "            <tr>\n" +
-        "               <td>voornaam</td>\n" +
-        "               <td>Willem Frederik</td>\n" +
-        "            </tr>\n" +
-        "         </tbody>\n" +
-        "      </table>\n" +
-        "   </body>\n" +
-        "</html>";
-    return expectedResult;
-  }
+    @Test
+    public void runTestJsonHtml() throws SaxonApiException {
+        String json = "{ \"id\":1, \"voornaam\":\"Willem Frederik\" }";
+        String expectedResult = getExpectedTestOne();
+        String result = toHtml.toHtml(json);
+        Assert.assertEquals(expectedResult, result);
+    }
 
+    private String getExpectedTestOne() {
+        return """
+                <!DOCTYPE HTML><html xmlns:js="http://www.w3.org/2005/xpath-functions">
+                   <head>
+                      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+                      <title></title>
+                   </head>
+                   <style>
+                                table,
+                                td,
+                                th {
+                                border: 1px solid;
+                                border-collapse: collapse;
+                                }
+                                td {
+                                padding: 0 1ex 0 1ex;
+                                }
+                            </style>
+                   <body>
+                      <table>
+                         <tbody>
+                            <tr>
+                               <th>Veld</th>
+                               <th>Waarde</th>
+                            </tr>
+                            <tr>
+                               <td>id</td>
+                               <td>1</td>
+                            </tr>
+                            <tr>
+                               <td>voornaam</td>
+                               <td>Willem Frederik</td>
+                            </tr>
+                         </tbody>
+                      </table>
+                   </body>
+                </html>""";
+    }
 }

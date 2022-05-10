@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
@@ -84,23 +83,14 @@ public class SwitchLoader {
     }
 
     private static <C> Switch<C> createSwitch(Recipe<C> recipe, String urlPattern, String acceptMimeType,
-                                              XdmItem config, XdmItem parentConfig)
-            throws RecipeParseException, SwitchException {
+                                              XdmItem config, XdmItem parentConfig) throws RecipeParseException {
         Set<String> pathParams = PATH_PATTERN
                 .matcher(urlPattern)
                 .results()
                 .map(MatchResult::group)
                 .collect(toSet());
 
-        Optional<String> missingPathParam = recipe
-                .requiredPathParams()
-                .stream()
-                .filter(pathParam -> !pathParams.contains(pathParam))
-                .findAny();
-
-        if (missingPathParam.isPresent())
-            throw new SwitchException(String.format("Missing required path param '%s'", missingPathParam.get()));
-
-        return Switch.createSwitch(recipe, urlPattern, acceptMimeType, recipe.parseConfig(config, parentConfig));
+        C parsedConfig = recipe.parseConfig(config, parentConfig, pathParams);
+        return Switch.createSwitch(recipe, urlPattern, acceptMimeType, parsedConfig);
     }
 }

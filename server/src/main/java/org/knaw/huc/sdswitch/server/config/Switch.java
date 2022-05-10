@@ -6,8 +6,6 @@ import org.knaw.huc.sdswitch.server.recipe.RecipeData;
 import org.knaw.huc.sdswitch.server.recipe.RecipeException;
 import org.knaw.huc.sdswitch.server.recipe.RecipeResponse;
 
-import java.util.regex.Pattern;
-
 public class Switch<C> {
     private final Recipe<C> recipe;
     private final String urlPattern;
@@ -34,15 +32,31 @@ public class Switch<C> {
             RecipeData<C> data = new RecipeData<>(context.pathParamMap(), config);
             RecipeResponse response = recipe.withData(data);
 
-            if (response != null && response.redirect() != null) {
-                context.redirect(response.redirect());
-                return;
-            }
+            if (response != null) {
+                if (response.redirect() != null) {
+                    context.redirect(response.redirect());
+                    return;
+                }
 
-            if (response != null && response.contentType() != null && response.inputStream() != null) {
-                context.contentType(response.contentType());
-                context.result(response.inputStream());
-                return;
+                if (response.contentType() != null) {
+                    if (response.body() != null) {
+                        context.contentType(response.contentType());
+                        context.result(response.body());
+                        return;
+                    }
+
+                    if (response.byteArray() != null) {
+                        context.contentType(response.contentType());
+                        context.result(response.byteArray());
+                        return;
+                    }
+
+                    if (response.inputStream() != null) {
+                        context.contentType(response.contentType());
+                        context.result(response.inputStream());
+                        return;
+                    }
+                }
             }
 
             throw new RecipeException("No data from recipe!");

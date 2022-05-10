@@ -8,6 +8,7 @@ import org.knaw.huc.sdswitch.server.config.SwitchLoader;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -26,7 +27,9 @@ public class Application {
             config.enableDevLogging();
         }).start(port);
 
-        for (String urlPattern : switches.keySet()) {
+        List<String> urlPatterns = switches.keySet().stream()
+                .sorted((p1, p2) -> -1 * Integer.compare(p1.length(), p2.length())).toList();
+        for (String urlPattern : urlPatterns) {
             new Router(app, urlPattern, switches.get(urlPattern));
             JavalinLogger.info("Configured a new switch for URL " + urlPattern);
         }

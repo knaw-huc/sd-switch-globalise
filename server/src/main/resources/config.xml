@@ -1,4 +1,37 @@
 <sd-switch>
-  <switch recipe="org.knaw.huc.sdswitch.recipe.HelloWorldRecipe" url-pattern="/test/{name}">
+  <switch recipe="org.knaw.huc.sdswitch.recipe.HelloWorldRecipe">
+    <url pattern="/test/{name}"/>
+  </switch>
+
+  <switch recipe="org.knaw.huc.sdswitch.recipe.DreamFactoryRecipe">
+    <sub-switch>
+      <url pattern="/raa/persoon/{id}" accept="text/json"/>
+      <url pattern="/raa/persoon/{id}.json"/>
+
+      <format>json</format>
+    </sub-switch>
+
+    <sub-switch>
+      <url pattern="/raa/persoon/{id}" accept="text/ttl"/>
+      <url pattern="/raa/persoon/{id}.ttl"/>
+
+      <format>ttl</format>
+    </sub-switch>
+
+    <sub-switch>
+      <url pattern="/raa/persoon/{id}" accept="text/html"/>
+      <url pattern="/raa/persoon/{id}.htm"/>
+      <url pattern="/raa/persoon/{id}.html"/>
+
+      <format>html</format>
+    </sub-switch>
+
+    <type>postgres</type>
+    <table>persoon</table>
+    <base-url>http://n-195-169-89-123.diginfra.net:8888</base-url>
+    <api-key>823125db5e6776687eb50150b47945642d12341fa072286a4174db44cc9ab637</api-key>
+    <related>academische_titel_by_academischetitel_id,adellijke_titel_by_adellijketitel_id</related>
+    <xml2html-path>recipe/src/test/resources/raa_xml2html.xsl</xml2html-path>
+    <ttl-schema-path>recipe/src/test/resources/schema_raa.xml</ttl-schema-path>
   </switch>
 </sd-switch>
