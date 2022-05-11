@@ -12,9 +12,9 @@ import java.util.regex.Pattern;
 public class Router {
     private final Set<Switch<?>> switches;
 
-    public Router(Javalin app, String urlPattern, Set<Switch<?>> switches) {
+    public Router(Javalin app, SwitchRoute switchRoute, Set<Switch<?>> switches) {
         this.switches = switches;
-        app.get(urlPattern, this::withRequest);
+        app.get(switchRoute.urlPattern(), this::withRequest, switchRoute.role());
     }
 
     private void withRequest(Context ctx) {

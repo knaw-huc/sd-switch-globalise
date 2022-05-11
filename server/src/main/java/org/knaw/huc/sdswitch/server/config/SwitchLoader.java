@@ -28,9 +28,9 @@ public class SwitchLoader {
         recipes = Recipe.getRecipes();
     }
 
-    public Map<String, Set<Switch<?>>> loadSwitches(InputStream stream) throws SwitchException {
+    public Map<SwitchRoute, Set<Switch<?>>> loadSwitches(InputStream stream) throws SwitchException {
         try {
-            Map<String, Set<Switch<?>>> switches = new HashMap<>();
+            Map<SwitchRoute, Set<Switch<?>>> switches = new HashMap<>();
 
             XdmNode conf = Saxon.buildDocument(new StreamSource(stream));
             for (XdmItem switchItem : Saxon.xpathList(conf, "/sd-switch/switch")) {
@@ -58,7 +58,7 @@ public class SwitchLoader {
         }
     }
 
-    private static <C> void withSwitchConfig(Map<String, Set<Switch<?>>> switches, Recipe<C> recipe,
+    private static <C> void withSwitchConfig(Map<SwitchRoute, Set<Switch<?>>> switches, Recipe<C> recipe,
                                              XdmItem config, XdmItem parentConfig)
             throws RecipeParseException, SwitchException, SaxonApiException {
         List<XdmItem> urlItems = Saxon.xpathList(config, "url");
@@ -70,15 +70,18 @@ public class SwitchLoader {
                 throw new SwitchException("Switch is missing a 'pattern' attribute");
 
             String urlPattern = Saxon.xpath2string(urlItem, "@pattern");
-            String acceptMimeType = Saxon.hasAttribute(urlItem, "accept")
-                    ? Saxon.xpath2string(urlItem, "@accept") : null;
+            String role = Saxon.xpath2string(urlItem, "@role");
+            SwitchRoute switchRoute = SwitchRoute.create(urlPattern, role);
 
-            Set<Switch<?>> urlSwitches = switches.getOrDefault(urlPattern, new HashSet<>());
+            Set<Switch<?>> urlSwitches = switches.getOrDefault(switchRoute, new HashSet<>());
             if (urlSwitches.stream().anyMatch(aSwitch -> aSwitch.getAcceptMimeType() == null))
                 throw new SwitchException("There is already a switch configured with URL pattern '" + urlPattern + "'!");
 
+            String acceptMimeType = Saxon.hasAttribute(urlItem, "accept")
+                    ? Saxon.xpath2string(urlItem, "@accept") : null;
+
             urlSwitches.add(createSwitch(recipe, urlPattern, acceptMimeType, config, parentConfig));
-            switches.putIfAbsent(urlPattern, urlSwitches);
+            switches.putIfAbsent(switchRoute, urlSwitches);
         }
     }
 

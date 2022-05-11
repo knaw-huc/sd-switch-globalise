@@ -1,6 +1,6 @@
 <sd-switch>
   <switch recipe="org.knaw.huc.sdswitch.recipe.HelloWorldRecipe">
-    <url pattern="/test/{name}"/>
+    <url pattern="/test/{name}" role="user"/>
   </switch>
 
   <switch recipe="org.knaw.huc.sdswitch.recipe.DreamFactoryRecipe">
