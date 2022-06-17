@@ -45,7 +45,6 @@ public class Application {
         final int port = Integer.parseInt(System.getenv().getOrDefault("SERVER_PORT", "8080"));
         final Javalin app = Javalin.create(config -> {
             config.showJavalinBanner = false;
-            config.enableDevLogging();
             securityRouter.ifPresent(config::accessManager);
         }).start(port);
 

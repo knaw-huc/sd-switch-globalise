@@ -7,7 +7,10 @@ import io.javalin.http.BadRequestResponse;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import io.javalin.http.UnauthorizedResponse;
+import org.knaw.huc.sdswitch.server.security.data.Tokens;
 import org.knaw.huc.sdswitch.server.util.Cache;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
@@ -17,6 +20,8 @@ import java.util.Set;
 import java.util.UUID;
 
 public class SecurityRouter implements AccessManager {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SecurityRouter.class);
+
     private final OpenID openID;
     private final Cache<String, Map<String, String>> userInfoCache;
     private final Map<UUID, String> stateRedirects;
@@ -48,6 +53,8 @@ public class SecurityRouter implements AccessManager {
             }
         }
 
+        LOGGER.info(String.format("Request with access token %s", auth));
+
         Map<String, String> userInfo = null;
         if (auth != null && !auth.isBlank()) {
             userInfo = userInfoCache.get(auth);
@@ -59,6 +66,8 @@ public class SecurityRouter implements AccessManager {
         }
 
         if (userInfo != null) {
+            LOGGER.info(String.format("Request has user info %s", userInfo));
+
             ctx.attribute("user", userInfo);
             ctx.cookie("access_token", auth);
         }
@@ -77,21 +86,27 @@ public class SecurityRouter implements AccessManager {
         UUID state = UUID.randomUUID();
         stateRedirects.put(state, ctx.queryParam("redirect-uri"));
 
+        LOGGER.info(String.format("Perform OpenID auth request %s", openID.createAuthUri(state)));
+
         ctx.redirect(openID.createAuthUri(state).toString());
     }
 
     private void withRedirectRequest(Context ctx) throws OpenIDException {
-        if (ctx.queryParam("state") == null)
+        String stateParam = ctx.queryParam("state");
+        if (stateParam == null)
             throw new BadRequestResponse("Missing 'state'");
 
-        UUID state = UUID.fromString(ctx.queryParam("state"));
+        UUID state = UUID.fromString(stateParam);
         if (!stateRedirects.containsKey(state))
             throw new BadRequestResponse("Unknown 'state'");
 
-        if (ctx.queryParam("code") == null)
+        String code = ctx.queryParam("code");
+        if (code == null)
             throw new BadRequestResponse("Missing 'code'");
 
-        OpenID.Tokens tokens = openID.getTokens(ctx.queryParam("code"));
+        Tokens tokens = openID.getTokens(code);
+
+        LOGGER.info(String.format("Redirect obtained OpenID tokens %s", tokens));
 
         URI redirectUri = UriBuilder.fromUri(stateRedirects.remove(state))
                 .queryParam("access_token", tokens.accessToken())

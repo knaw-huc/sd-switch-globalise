@@ -1,10 +1,13 @@
 package org.knaw.huc.sdswitch.server.security;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.knaw.huc.sdswitch.server.security.data.Tokens;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.UriBuilder;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URI;
@@ -12,8 +15,13 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class OpenID {
+    private static final Logger LOGGER = LoggerFactory.getLogger(OpenID.class);
+    private static final ObjectMapper MAPPER = new ObjectMapper();
+
     private final URI oidcServer;
     private final URI redirectUri;
     private final String clientId;
@@ -21,10 +29,10 @@ public class OpenID {
     private final String[] scope;
 
     public OpenID(URI oidcServer, URI redirectUri, String clientId, String clientSecret) {
-        this(oidcServer, redirectUri, clientId, clientSecret, new String[]{"openid", "email", "profile"});
+        this(oidcServer, redirectUri, clientId, clientSecret, "openid", "email", "profile");
     }
 
-    public OpenID(URI oidcServer, URI redirectUri, String clientId, String clientSecret, String[] scope) {
+    public OpenID(URI oidcServer, URI redirectUri, String clientId, String clientSecret, String... scope) {
         this.oidcServer = oidcServer;
         this.redirectUri = redirectUri;
         this.clientId = clientId;
@@ -34,7 +42,7 @@ public class OpenID {
 
     public URI createUserInfoUri() {
         return UriBuilder.fromUri(oidcServer)
-                .path("/userinfo")
+                .path("OIDC/userinfo")
                 .build();
     }
 
@@ -44,19 +52,24 @@ public class OpenID {
                 .queryParam("client_id", clientId)
                 .queryParam("response_type", "code")
                 .queryParam("redirect_uri", redirectUri)
+                .queryParam("scope", String.join(" ", scope))
                 .queryParam("state", state)
                 .build();
     }
 
-    public URI createTokensUri(String code) {
+    public URI createTokensUri() {
         return UriBuilder.fromUri(oidcServer)
-                .path("/token")
-                .queryParam("client_id", clientId)
-                .queryParam("grant_type", "authorization_code")
-                .queryParam("code", code)
-                .queryParam("redirect_uri", redirectUri)
-                .queryParam("scope", String.join(" ", scope))
+                .path("OIDC/token")
                 .build();
+    }
+
+    public String createTokensQuery(String code) {
+        return createQueryString(Map.of(
+                "client_id", clientId,
+                "grant_type", "authorization_code",
+                "redirect_uri", redirectUri.toString(),
+                "code", code
+        ));
     }
 
     public HashMap<String, String> getUserInfo(String accessToken) throws OpenIDException {
@@ -65,13 +78,14 @@ public class OpenID {
             HttpURLConnection conn = (HttpURLConnection) userInfoUri.toURL().openConnection();
 
             conn.setRequestMethod("GET");
-            conn.setRequestProperty("authorization", "Basic " + accessToken);
+            conn.setRequestProperty("authorization", "Bearer " + accessToken);
+
+            LOGGER.info(String.format("Execute OpenID user info request %s with access token %s%n", userInfoUri, accessToken));
 
             if (conn.getResponseCode() != HttpURLConnection.HTTP_OK)
                 throw new OpenIDException("Failed to execute OpenID user info request with response code: " + conn.getResponseCode());
 
-            ObjectMapper mapper = new ObjectMapper();
-            return mapper.readValue(conn.getInputStream(), new TypeReference<>() {
+            return MAPPER.readValue(conn.getInputStream(), new TypeReference<>() {
             });
         } catch (IOException ex) {
             throw new OpenIDException("Failed to execute OpenID user info request", ex);
@@ -80,9 +94,10 @@ public class OpenID {
 
     public Tokens getTokens(String code) throws OpenIDException {
         try {
-            URI tokenUri = createTokensUri(code);
+            URI tokenUri = createTokensUri();
             HttpURLConnection conn = (HttpURLConnection) tokenUri.toURL().openConnection();
 
+            conn.setDoOutput(true);
             conn.setRequestMethod("POST");
             conn.setRequestProperty("charset", "utf-8");
             conn.setRequestProperty("content-type", "application/x-www-form-urlencoded");
@@ -92,20 +107,27 @@ public class OpenID {
             String encodedAuthValue = Base64.getEncoder().encodeToString(authValue.getBytes(StandardCharsets.UTF_8));
             conn.setRequestProperty("authorization", "Basic " + encodedAuthValue);
 
-            if (conn.getResponseCode() != HttpURLConnection.HTTP_OK)
-                throw new OpenIDException("Failed to execute OpenID tokens request with response code: " + conn.getResponseCode());
+            String tokensQuery = createTokensQuery(code);
+            try (DataOutputStream out = new DataOutputStream(conn.getOutputStream())) {
+                out.write(tokensQuery.getBytes(StandardCharsets.UTF_8));
+            }
 
-            ObjectMapper mapper = new ObjectMapper();
-            return mapper.readValue(conn.getInputStream(), Tokens.class);
+            LOGGER.info(String.format("Execute OpenID tokens request %s and query %s", tokenUri, tokensQuery));
+
+            if (conn.getResponseCode() != HttpURLConnection.HTTP_OK)
+                throw new OpenIDException(String.format(
+                        "Failed to execute OpenID tokens request with response code: %s and message %s",
+                        conn.getResponseCode(), new String(conn.getErrorStream().readAllBytes(), StandardCharsets.UTF_8)));
+
+            return MAPPER.readValue(conn.getInputStream(), Tokens.class);
         } catch (IOException ex) {
             throw new OpenIDException("Failed to execute OpenID tokens request", ex);
         }
     }
 
-    public record Tokens(@JsonProperty("access_token") String accessToken,
-                         @JsonProperty("token_type") String tokenType,
-                         @JsonProperty("refresh_token") String refreshToken,
-                         @JsonProperty("expires_in") long expiresIn,
-                         @JsonProperty("id_token") String idToken) {
+    private static String createQueryString(Map<String, String> map) {
+        return map.entrySet().stream()
+                .map(entry -> entry.getKey() + "=" + URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8))
+                .collect(Collectors.joining("&"));
     }
 }
