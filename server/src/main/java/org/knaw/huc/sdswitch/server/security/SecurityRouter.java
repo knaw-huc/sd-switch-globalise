@@ -7,34 +7,43 @@ import io.javalin.http.BadRequestResponse;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import io.javalin.http.UnauthorizedResponse;
-import org.knaw.huc.sdswitch.server.security.data.Tokens;
-import org.knaw.huc.sdswitch.server.util.Cache;
+import org.knaw.huc.auth.OpenID;
+import org.knaw.huc.auth.OpenIDException;
+import org.knaw.huc.auth.OpenIDUnauthorizedException;
+import org.knaw.huc.auth.data.Tokens;
+import org.knaw.huc.auth.data.UserInfo;
+import org.knaw.huc.sdswitch.server.security.data.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class SecurityRouter implements AccessManager {
+    private enum Code {AUTH_CODE, ACCESS_TOKEN, REFRESH_TOKEN}
+
     private static final Logger LOGGER = LoggerFactory.getLogger(SecurityRouter.class);
 
     private final OpenID openID;
-    private final Cache<String, Map<String, String>> userInfoCache;
+    private final Map<String, User> accessTokenUsers;
+    private final Map<String, User> apiKeysUsers;
     private final Map<UUID, String> stateRedirects;
 
     public SecurityRouter(OpenID openID) {
         this.openID = openID;
-        this.userInfoCache = new Cache<>();
-        this.stateRedirects = new HashMap<>();
+        this.accessTokenUsers = new ConcurrentHashMap<>();
+        this.apiKeysUsers = new ConcurrentHashMap<>();
+        this.stateRedirects = new ConcurrentHashMap<>();
     }
 
     public void registerRoutes(Javalin app) {
         app.get("/login", this::withLoginRequest, Role.ANONYMOUS);
         app.get("/redirect", this::withRedirectRequest, Role.ANONYMOUS);
+        app.get("/apikey", this::withApiKeyRequest, Role.USER);
     }
 
     @Override
@@ -53,26 +62,22 @@ public class SecurityRouter implements AccessManager {
             }
         }
 
-        LOGGER.info(String.format("Request with access token %s", auth));
+        LOGGER.info(String.format("Incoming request with access token %s", auth));
 
-        Map<String, String> userInfo = null;
+        User user = null;
         if (auth != null && !auth.isBlank()) {
-            userInfo = userInfoCache.get(auth);
-            if (userInfo == null) {
-                userInfo = openID.getUserInfo(auth);
-                if (userInfo != null)
-                    userInfoCache.put(auth, userInfo);
+            user = accessTokenUsers.get(auth);
+            if (user == null) {
+                user = apiKeysUsers.get(auth);
+                if (user == null) {
+                    user = getUserByCode(auth, Code.ACCESS_TOKEN);
+                }
             }
         }
 
-        if (userInfo != null) {
-            LOGGER.info(String.format("Request has user info %s", userInfo));
+        withUser(ctx, user);
 
-            ctx.attribute("user", userInfo);
-            ctx.cookie("access_token", auth);
-        }
-
-        RouteRole role = userInfo != null ? Role.USER : Role.ANONYMOUS;
+        RouteRole role = user != null ? Role.USER : Role.ANONYMOUS;
         if (!routeRoles.contains(role))
             throw new UnauthorizedResponse();
 
@@ -91,7 +96,7 @@ public class SecurityRouter implements AccessManager {
         ctx.redirect(openID.createAuthUri(state).toString());
     }
 
-    private void withRedirectRequest(Context ctx) throws OpenIDException {
+    private void withRedirectRequest(Context ctx) {
         String stateParam = ctx.queryParam("state");
         if (stateParam == null)
             throw new BadRequestResponse("Missing 'state'");
@@ -104,14 +109,76 @@ public class SecurityRouter implements AccessManager {
         if (code == null)
             throw new BadRequestResponse("Missing 'code'");
 
-        Tokens tokens = openID.getTokens(code);
-
-        LOGGER.info(String.format("Redirect obtained OpenID tokens %s", tokens));
+        User user = getUserByCode(code, Code.AUTH_CODE);
+        withUser(ctx, user);
 
         URI redirectUri = UriBuilder.fromUri(stateRedirects.remove(state))
-                .queryParam("access_token", tokens.accessToken())
+                .queryParam("access_token", user.getTokens().accessToken())
                 .build();
 
         ctx.redirect(redirectUri.toString());
+    }
+
+    private void withApiKeyRequest(Context ctx) {
+        ctx.result(((User) ctx.attribute("user")).getApiKey().toString());
+    }
+
+    private User getUserByCode(String code, Code codeType) {
+        return getUserByCode(code, codeType, null);
+    }
+
+    private User getUserByCode(String code, Code codeType, User user) {
+        try {
+            if (user != null) {
+                accessTokenUsers.remove(user.getTokens().accessToken());
+                apiKeysUsers.remove(user.getApiKey().toString());
+            }
+
+            Tokens tokens = null;
+            String accessToken;
+
+            if (codeType == Code.AUTH_CODE || codeType == Code.REFRESH_TOKEN) {
+                tokens = openID.getTokens(code, codeType == Code.REFRESH_TOKEN);
+                accessToken = tokens.accessToken();
+                LOGGER.info(String.format("Obtained OpenID tokens %s", tokens));
+            }
+            else {
+                accessToken = code;
+            }
+
+            if (user == null) {
+                UserInfo userInfo = openID.getUserInfo(accessToken);
+                user = new User(userInfo, tokens);
+                LOGGER.info(String.format("Obtained user info %s", userInfo));
+            }
+            else
+                user.setTokens(tokens);
+
+            accessTokenUsers.put(accessToken, user);
+            if (codeType != Code.ACCESS_TOKEN) {
+                apiKeysUsers.put(user.getApiKey().toString(), user);
+            }
+
+            return user;
+        } catch (OpenIDException oide) {
+            LOGGER.error("Failed OpenID request", oide);
+            return null;
+        } catch (OpenIDUnauthorizedException oidue) {
+            return null;
+        }
+    }
+
+    private void withUser(Context ctx, User user) {
+        if (user != null) {
+            if (user.isAccessTokenExpired())
+                user = getUserByCode(user.getTokens().refreshToken(), Code.REFRESH_TOKEN, user);
+
+            ctx.attribute("user", user);
+
+            if (user.getTokens() != null)
+                ctx.cookie("access_token", user.getTokens().accessToken());
+        }
+        else
+            ctx.removeCookie("access_token");
     }
 }

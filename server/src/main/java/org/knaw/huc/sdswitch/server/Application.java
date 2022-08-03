@@ -2,17 +2,19 @@ package org.knaw.huc.sdswitch.server;
 
 import io.javalin.Javalin;
 import io.javalin.core.util.JavalinLogger;
+import org.knaw.huc.auth.OpenID;
+import org.knaw.huc.auth.data.Essential;
 import org.knaw.huc.sdswitch.server.config.Router;
 import org.knaw.huc.sdswitch.server.config.Switch;
 import org.knaw.huc.sdswitch.server.config.SwitchLoader;
 import org.knaw.huc.sdswitch.server.config.SwitchRoute;
-import org.knaw.huc.sdswitch.server.security.OpenID;
 import org.knaw.huc.sdswitch.server.security.SecurityRouter;
 
 import javax.ws.rs.core.UriBuilder;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -37,7 +39,16 @@ public class Application {
             final String clientId = System.getenv().get("OIDC_CLIENT_ID");
             final String clientSecret = System.getenv().get("OIDC_CLIENT_SECRET");
 
-            openID = new OpenID(oidcServer, redirectUrl, clientId, clientSecret);
+            Map<String, Essential> userInfoClaims = new HashMap<>();
+            userInfoClaims.put("edupersontargetedid", null);
+            userInfoClaims.put("schac_home_organisation", null);
+            userInfoClaims.put("nickname", null);
+            userInfoClaims.put("email", null);
+            userInfoClaims.put("eppn", null);
+            userInfoClaims.put("idp", null);
+
+            openID = new OpenID(oidcServer, redirectUrl, clientId, clientSecret,
+                    Map.of("userinfo", userInfoClaims), "openid", "email", "profile");
         }
         final Optional<SecurityRouter> securityRouter =
                 Optional.ofNullable(openID != null ? new SecurityRouter(openID) : null);

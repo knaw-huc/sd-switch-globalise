@@ -1,4 +1,4 @@
-package org.knaw.huc.sdswitch.server.security.data;
+package org.knaw.huc.auth.data;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

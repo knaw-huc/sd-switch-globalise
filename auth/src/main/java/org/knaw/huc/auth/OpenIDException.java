@@ -1,4 +1,4 @@
-package org.knaw.huc.sdswitch.server.security;
+package org.knaw.huc.auth;
 
 public class OpenIDException extends Exception {
     public OpenIDException(String message) {

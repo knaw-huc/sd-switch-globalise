@@ -1,6 +1,6 @@
 package org.knaw.huc.sdswitch.server.recipe;
 
-import java.util.Map;
+import io.javalin.http.Context;
 
-public record RecipeData<C>(Map<String, String> pathParams, C config) {
+public record RecipeData<C>(Context context, C config) {
 }

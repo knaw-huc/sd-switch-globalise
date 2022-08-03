@@ -29,7 +29,7 @@ public class Switch<C> {
 
     public void handle(Context context) {
         try {
-            RecipeData<C> data = new RecipeData<>(context.pathParamMap(), config);
+            RecipeData<C> data = new RecipeData<>(context, config);
             RecipeResponse response = recipe.withData(data);
 
             if (response != null) {

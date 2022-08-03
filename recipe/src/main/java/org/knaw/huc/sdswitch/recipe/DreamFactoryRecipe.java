@@ -93,7 +93,7 @@ public class DreamFactoryRecipe implements Recipe<DreamFactoryRecipe.DreamFactor
                     data.config().baseUrl(), data.config().type(),
                     URLEncoder.encode(data.config().table(), StandardCharsets.UTF_8.toString()));
 
-            if (data.pathParams().get("id") != null) {
+            if (!data.context().pathParam("id").isEmpty()) {
                 String related = data.config().related();
                 if (related == null) {
                     related = "";
@@ -103,7 +103,7 @@ public class DreamFactoryRecipe implements Recipe<DreamFactoryRecipe.DreamFactor
                 }
                 // related=* gives 'not implemented'
                 url += String.format("/%s?fields=*%s",
-                        URLEncoder.encode(data.pathParams().get("id"), StandardCharsets.UTF_8.toString()),
+                        URLEncoder.encode(data.context().pathParam("id"), StandardCharsets.UTF_8.toString()),
                         related);
             }
 

@@ -2,6 +2,7 @@ package org.knaw.huc.sdswitch.server.config;
 
 import io.javalin.Javalin;
 import io.javalin.http.Context;
+import org.knaw.huc.auth.OpenID;
 
 import java.util.Arrays;
 import java.util.Optional;

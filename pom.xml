@@ -12,6 +12,7 @@
   <modules>
     <module>server</module>
     <module>recipe</module>
+    <module>auth</module>
   </modules>
 
   <properties>
@@ -28,7 +29,8 @@
       javax.xml.bind,
       javax.activation,
       javax.ws.rs,
-      org.slf4j
+      org.slf4j,
+      slf4j.api
     </module.group.ids>
   </properties>
 

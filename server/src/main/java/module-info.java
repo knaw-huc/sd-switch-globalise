@@ -5,8 +5,9 @@ module org.knaw.huc.sdswitch.server {
     requires SaxonUtils;
     requires java.ws.rs;
     requires com.fasterxml.jackson.databind;
+    requires org.knaw.huc.auth;
     exports org.knaw.huc.sdswitch.server.recipe;
     exports org.knaw.huc.sdswitch.server.config;
+    exports org.knaw.huc.sdswitch.server.security.data;
     uses org.knaw.huc.sdswitch.server.recipe.Recipe;
-    opens org.knaw.huc.sdswitch.server.security.data to com.fasterxml.jackson.databind;
 }

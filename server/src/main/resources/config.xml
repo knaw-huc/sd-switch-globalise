@@ -3,6 +3,10 @@
     <url pattern="/test/{name}" role="user"/>
   </switch>
 
+  <switch recipe="org.knaw.huc.sdswitch.recipe.TestSatosaRecipe">
+    <url pattern="/satosa" role="user"/>
+  </switch>
+
   <switch recipe="org.knaw.huc.sdswitch.recipe.DreamFactoryRecipe">
     <sub-switch>
       <url pattern="/raa/persoon/{id}" accept="text/json"/>
