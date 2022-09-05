@@ -9,6 +9,7 @@ import org.knaw.huc.sdswitch.server.recipe.RecipeParseException;
 
 import javax.xml.transform.stream.StreamSource;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -48,7 +49,7 @@ public class SwitchLoader {
                     withSwitchConfig(switches, recipe, switchItem, null);
                 else {
                     for (XdmItem subSwitchItem : subSwitchItems)
-                        withSwitchConfig(switches, recipe, subSwitchItem, switchItem);
+                        withSwitchConfig(switches, recipe, switchItem, subSwitchItem);
                 }
             }
 
@@ -59,9 +60,9 @@ public class SwitchLoader {
     }
 
     private static <C> void withSwitchConfig(Map<String, Set<Switch<?>>> switches, Recipe<C> recipe,
-                                             XdmItem config, XdmItem parentConfig)
+                                             XdmItem parentConfig, XdmItem childConfig)
             throws RecipeParseException, SwitchException, SaxonApiException {
-        List<XdmItem> urlItems = Saxon.xpathList(config, "url");
+        List<XdmItem> urlItems = Saxon.xpathList(childConfig != null ? childConfig : parentConfig, "url");
         if (urlItems.isEmpty())
             throw new SwitchException("A switch is missing at least one 'url' item");
 
@@ -77,20 +78,34 @@ public class SwitchLoader {
             if (urlSwitches.stream().anyMatch(aSwitch -> aSwitch.getAcceptMimeType() == null))
                 throw new SwitchException("There is already a switch configured with URL pattern '" + urlPattern + "'!");
 
-            urlSwitches.add(createSwitch(recipe, urlPattern, acceptMimeType, config, parentConfig));
+            // Obtain all properties from both the parent and child config
+            List<XdmItem> configItems = Saxon.xpathList(parentConfig, "./*[not(self::sub-switch) and not(self::url)]");
+            if (childConfig != null)
+                configItems.addAll(Saxon.xpathList(childConfig, "./*[not(self::url)]"));
+
+            // Build a new element with the combined properties from both the parent and the child config
+            StringBuilder builder = new StringBuilder("<switch>");
+            for (XdmItem configItem : configItems)
+                builder.append(configItem.toString());
+            builder.append("</switch>");
+
+            XdmNode config = Saxon.buildDocument(new StreamSource(new StringReader(builder.toString())));
+            XdmItem configRoot = Saxon.xpathList(config, "/switch").get(0);
+
+            urlSwitches.add(createSwitch(recipe, urlPattern, acceptMimeType, configRoot));
             switches.putIfAbsent(urlPattern, urlSwitches);
         }
     }
 
-    private static <C> Switch<C> createSwitch(Recipe<C> recipe, String urlPattern, String acceptMimeType,
-                                              XdmItem config, XdmItem parentConfig) throws RecipeParseException {
+    private static <C> Switch<C> createSwitch(Recipe<C> recipe, String urlPattern,
+                                              String acceptMimeType, XdmItem config) throws RecipeParseException {
         Set<String> pathParams = PATH_PATTERN
                 .matcher(urlPattern)
                 .results()
                 .map(MatchResult::group)
                 .collect(toSet());
 
-        C parsedConfig = recipe.parseConfig(config, parentConfig, pathParams);
+        C parsedConfig = recipe.parseConfig(config, pathParams);
         return Switch.createSwitch(recipe, urlPattern, acceptMimeType, parsedConfig);
     }
 }

@@ -36,39 +36,39 @@ public class DreamFactoryRecipe implements Recipe<DreamFactoryRecipe.DreamFactor
     }
 
     @Override
-    public DreamFactoryConfig parseConfig(XdmItem config, XdmItem parentConfig, Set<String> pathParams) throws RecipeParseException {
+    public DreamFactoryConfig parseConfig(XdmItem config, Set<String> pathParams) throws RecipeParseException {
         try {
-            String type = Recipe.parse("type", config, parentConfig);
+            String type = Saxon.xpath2string(config, "type");
             if (type.isBlank()) {
                 throw new RecipeParseException("Missing required type");
             }
 
-            String table = Recipe.parse("table", config, parentConfig);
+            String table = Saxon.xpath2string(config, "table");
             if (table.isBlank()) {
                 throw new RecipeParseException("Missing required table");
             }
 
-            String baseUrl = Recipe.parse("base-url", config, parentConfig);
+            String baseUrl = Saxon.xpath2string(config, "base-url");
             if (baseUrl.isBlank()) {
                 throw new RecipeParseException("Missing required base-url");
             }
 
-            String apiKey = Recipe.parse("api-key", config, parentConfig);
+            String apiKey = Saxon.xpath2string(config, "api-key");
             if (apiKey.isBlank()) {
                 throw new RecipeParseException("Missing required api-key");
             }
 
-            String related = Recipe.parse("related", config, parentConfig);
-            String accept = Recipe.parse("accept", config, parentConfig);
+            String related = Saxon.xpath2string(config, "related");
+            String accept = Saxon.xpath2string(config, "accept");
 
-            DreamFactoryConfig.Format format = switch (Recipe.parse("format", config, parentConfig)) {
+            DreamFactoryConfig.Format format = switch (Saxon.xpath2string(config, "format")) {
                 case "json" -> DreamFactoryConfig.Format.JSON;
                 case "html" -> DreamFactoryConfig.Format.HTML;
                 case "ttl" -> DreamFactoryConfig.Format.TTL;
                 default -> throw new RecipeParseException("Missing required format (json / html / ttl)");
             };
 
-            String xml2HtmlPath = Recipe.parse("xml2html-path", config, parentConfig);
+            String xml2HtmlPath = Saxon.xpath2string(config, "xml2html-path");
             XsltTransformer toHtmlTransformer = Saxon.buildTransformer(new File(xml2HtmlPath)).load();
             JsonToHtml toHtml = new JsonToHtml(toHtmlTransformer);
 
@@ -76,7 +76,7 @@ public class DreamFactoryRecipe implements Recipe<DreamFactoryRecipe.DreamFactor
             dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
             DocumentBuilder db = dbf.newDocumentBuilder();
 
-            String ttlSchemaPath = Recipe.parse("ttl-schema-path", config, parentConfig);
+            String ttlSchemaPath = Saxon.xpath2string(config, "ttl-schema-path");
             Document ttlSchema = db.parse(new FileInputStream(ttlSchemaPath));
             JsonToTtl toTtl = new JsonToTtl(ttlSchema);
 
@@ -91,19 +91,18 @@ public class DreamFactoryRecipe implements Recipe<DreamFactoryRecipe.DreamFactor
         try {
             String url = String.format("%s/api/v2/%s/_table/%s",
                     data.config().baseUrl(), data.config().type(),
-                    URLEncoder.encode(data.config().table(), StandardCharsets.UTF_8.toString()));
+                    URLEncoder.encode(data.config().table(), StandardCharsets.UTF_8));
 
             if (data.pathParams().get("id") != null) {
                 String related = data.config().related();
                 if (related == null) {
                     related = "";
-                }
-                else {
-                    related = "&related=" + URLEncoder.encode(related, StandardCharsets.UTF_8.toString());
+                } else {
+                    related = "&related=" + URLEncoder.encode(related, StandardCharsets.UTF_8);
                 }
                 // related=* gives 'not implemented'
                 url += String.format("/%s?fields=*%s",
-                        URLEncoder.encode(data.pathParams().get("id"), StandardCharsets.UTF_8.toString()),
+                        URLEncoder.encode(data.pathParams().get("id"), StandardCharsets.UTF_8),
                         related);
             }
 

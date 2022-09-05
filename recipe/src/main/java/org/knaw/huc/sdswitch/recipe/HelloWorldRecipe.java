@@ -9,7 +9,7 @@ import java.util.Set;
 
 public class HelloWorldRecipe implements Recipe<Void> {
     @Override
-    public Void parseConfig(XdmItem config, XdmItem parentConfig, Set<String> pathParams) {
+    public Void parseConfig(XdmItem config, Set<String> pathParams) {
         return null;
     }
 
