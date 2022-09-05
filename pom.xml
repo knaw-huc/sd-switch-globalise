@@ -10,8 +10,10 @@
   <packaging>pom</packaging>
 
   <modules>
-    <module>server</module>
     <module>recipe</module>
+    <module>server</module>
+    <module>helloworld</module>
+    <module>dreamfactory</module>
   </modules>
 
   <properties>

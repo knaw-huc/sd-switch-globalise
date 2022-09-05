@@ -1,4 +1,4 @@
-package org.knaw.huc.sdswitch.recipe;
+package org.knaw.huc.sdswitch.dreamfactory;
 
 import net.sf.saxon.s9api.SaxonApiException;
 import net.sf.saxon.s9api.XsltTransformer;

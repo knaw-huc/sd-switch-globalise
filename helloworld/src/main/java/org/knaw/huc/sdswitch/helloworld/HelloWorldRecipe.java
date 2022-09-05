@@ -1,9 +1,9 @@
-package org.knaw.huc.sdswitch.recipe;
+package org.knaw.huc.sdswitch.helloworld;
 
 import net.sf.saxon.s9api.XdmItem;
-import org.knaw.huc.sdswitch.server.recipe.Recipe;
-import org.knaw.huc.sdswitch.server.recipe.RecipeData;
-import org.knaw.huc.sdswitch.server.recipe.RecipeResponse;
+import org.knaw.huc.sdswitch.recipe.Recipe;
+import org.knaw.huc.sdswitch.recipe.RecipeData;
+import org.knaw.huc.sdswitch.recipe.RecipeResponse;
 
 import java.util.Set;
 

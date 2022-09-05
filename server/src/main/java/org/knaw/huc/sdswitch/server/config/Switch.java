@@ -1,10 +1,10 @@
 package org.knaw.huc.sdswitch.server.config;
 
 import io.javalin.http.Context;
-import org.knaw.huc.sdswitch.server.recipe.Recipe;
-import org.knaw.huc.sdswitch.server.recipe.RecipeData;
-import org.knaw.huc.sdswitch.server.recipe.RecipeException;
-import org.knaw.huc.sdswitch.server.recipe.RecipeResponse;
+import org.knaw.huc.sdswitch.recipe.Recipe;
+import org.knaw.huc.sdswitch.recipe.RecipeData;
+import org.knaw.huc.sdswitch.recipe.RecipeException;
+import org.knaw.huc.sdswitch.recipe.RecipeResponse;
 
 public class Switch<C> {
     private final Recipe<C> recipe;

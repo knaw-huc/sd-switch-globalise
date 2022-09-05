@@ -1,33 +1,23 @@
-package org.knaw.huc.sdswitch.recipe;
+package org.knaw.huc.sdswitch.dreamfactory;
 
+import mjson.Json;
 import net.sf.saxon.s9api.SaxonApiException;
 import net.sf.saxon.s9api.XdmItem;
 import net.sf.saxon.s9api.XsltTransformer;
 import nl.mpi.tla.util.Saxon;
-import org.knaw.huc.sdswitch.server.recipe.Recipe;
-import org.knaw.huc.sdswitch.server.recipe.RecipeData;
-import org.knaw.huc.sdswitch.server.recipe.RecipeException;
-import org.knaw.huc.sdswitch.server.recipe.RecipeParseException;
-import org.knaw.huc.sdswitch.server.recipe.RecipeResponse;
+import org.knaw.huc.sdswitch.recipe.*;
+import org.w3c.dom.Document;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import mjson.Json;
-import org.w3c.dom.Document;
-
-import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 
 public class DreamFactoryRecipe implements Recipe<DreamFactoryRecipe.DreamFactoryConfig> {
     record DreamFactoryConfig(String type, String table, String baseUrl, String accept, String apiKey, String related,

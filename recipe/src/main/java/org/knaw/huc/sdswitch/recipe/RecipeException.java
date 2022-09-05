@@ -1,4 +1,4 @@
-package org.knaw.huc.sdswitch.server.recipe;
+package org.knaw.huc.sdswitch.recipe;
 
 public class RecipeException extends Exception {
     private final int httpStatus;

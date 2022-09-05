@@ -4,29 +4,28 @@ import net.sf.saxon.s9api.SaxonApiException;
 import net.sf.saxon.s9api.XdmItem;
 import net.sf.saxon.s9api.XdmNode;
 import nl.mpi.tla.util.Saxon;
-import org.knaw.huc.sdswitch.server.recipe.Recipe;
-import org.knaw.huc.sdswitch.server.recipe.RecipeParseException;
+import org.knaw.huc.sdswitch.recipe.Recipe;
+import org.knaw.huc.sdswitch.recipe.RecipeParseException;
 
 import javax.xml.transform.stream.StreamSource;
 import java.io.InputStream;
 import java.io.StringReader;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
-
-import static java.util.stream.Collectors.toSet;
+import java.util.stream.Collectors;
 
 public class SwitchLoader {
     private static final Pattern PATH_PATTERN = Pattern.compile("(?<=[{<]).+?(?=[}>])");
 
     private final Map<String, Recipe<?>> recipes;
 
+    @SuppressWarnings("unchecked")
     public SwitchLoader() {
-        recipes = Recipe.getRecipes();
+        recipes = ServiceLoader
+                .load(Recipe.class)
+                .stream()
+                .collect(Collectors.toMap(provider -> provider.type().getName(), ServiceLoader.Provider::get));
     }
 
     public Map<String, Set<Switch<?>>> loadSwitches(InputStream stream) throws SwitchException {
@@ -103,7 +102,7 @@ public class SwitchLoader {
                 .matcher(urlPattern)
                 .results()
                 .map(MatchResult::group)
-                .collect(toSet());
+                .collect(Collectors.toSet());
 
         C parsedConfig = recipe.parseConfig(config, pathParams);
         return Switch.createSwitch(recipe, urlPattern, acceptMimeType, parsedConfig);

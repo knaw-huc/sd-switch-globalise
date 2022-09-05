@@ -1,4 +1,4 @@
-package org.knaw.huc.sdswitch.recipe;
+package org.knaw.huc.sdswitch.dreamfactory;
 
 import mjson.Json;
 import org.junit.Assert;
