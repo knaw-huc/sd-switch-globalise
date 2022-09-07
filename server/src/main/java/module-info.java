@@ -4,5 +4,4 @@ module org.knaw.huc.sdswitch.server {
     requires SaxonUtils;
     requires io.javalin;
     requires org.knaw.huc.sdswitch.recipe;
-    uses org.knaw.huc.sdswitch.recipe.Recipe;
 }

@@ -33,29 +33,30 @@ public class Switch<C> {
             RecipeResponse response = recipe.withData(data);
 
             if (response != null) {
+                context.status(response.statusCode());
+
                 if (response.redirect() != null) {
                     context.redirect(response.redirect());
                     return;
                 }
 
                 if (response.contentType() != null) {
-                    if (response.body() != null) {
-                        context.contentType(response.contentType());
-                        context.result(response.body());
-                        return;
-                    }
+                    context.contentType(response.contentType());
+                }
 
-                    if (response.byteArray() != null) {
-                        context.contentType(response.contentType());
-                        context.result(response.byteArray());
-                        return;
-                    }
+                if (response.body() != null) {
+                    context.result(response.body());
+                    return;
+                }
 
-                    if (response.inputStream() != null) {
-                        context.contentType(response.contentType());
-                        context.result(response.inputStream());
-                        return;
-                    }
+                if (response.byteArray() != null) {
+                    context.result(response.byteArray());
+                    return;
+                }
+
+                if (response.inputStream() != null) {
+                    context.result(response.inputStream());
+                    return;
                 }
             }
 

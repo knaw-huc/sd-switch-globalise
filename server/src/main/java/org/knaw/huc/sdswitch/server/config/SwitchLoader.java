@@ -20,12 +20,8 @@ public class SwitchLoader {
 
     private final Map<String, Recipe<?>> recipes;
 
-    @SuppressWarnings("unchecked")
     public SwitchLoader() {
-        recipes = ServiceLoader
-                .load(Recipe.class)
-                .stream()
-                .collect(Collectors.toMap(provider -> provider.type().getName(), ServiceLoader.Provider::get));
+        recipes = Recipe.loadRecipes();
     }
 
     public Map<String, Set<Switch<?>>> loadSwitches(InputStream stream) throws SwitchException {

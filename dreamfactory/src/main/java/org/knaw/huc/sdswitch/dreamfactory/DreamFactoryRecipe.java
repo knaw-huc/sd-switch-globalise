@@ -28,37 +28,41 @@ public class DreamFactoryRecipe implements Recipe<DreamFactoryRecipe.DreamFactor
     @Override
     public DreamFactoryConfig parseConfig(XdmItem config, Set<String> pathParams) throws RecipeParseException {
         try {
-            String type = Saxon.xpath2string(config, "type");
+            if (!pathParams.contains("id")) {
+                throw new RecipeParseException("Missing required path parameter 'id'");
+            }
+
+            String type = Saxon.xpath2string(config, "type").trim();
             if (type.isBlank()) {
                 throw new RecipeParseException("Missing required type");
             }
 
-            String table = Saxon.xpath2string(config, "table");
-            if (table.isBlank()) {
-                throw new RecipeParseException("Missing required table");
+            String table = Saxon.xpath2string(config, "table").trim();
+            if (table.isBlank() && !pathParams.contains("table")) {
+                throw new RecipeParseException("Missing required table config or path parameter");
             }
 
-            String baseUrl = Saxon.xpath2string(config, "base-url");
+            String baseUrl = Saxon.xpath2string(config, "base-url").trim();
             if (baseUrl.isBlank()) {
                 throw new RecipeParseException("Missing required base-url");
             }
 
-            String apiKey = Saxon.xpath2string(config, "api-key");
+            String apiKey = Saxon.xpath2string(config, "api-key").trim();
             if (apiKey.isBlank()) {
                 throw new RecipeParseException("Missing required api-key");
             }
 
-            String related = Saxon.xpath2string(config, "related");
-            String accept = Saxon.xpath2string(config, "accept");
+            String related = Saxon.xpath2string(config, "related").trim();
+            String accept = Saxon.xpath2string(config, "accept").trim();
 
-            DreamFactoryConfig.Format format = switch (Saxon.xpath2string(config, "format")) {
+            DreamFactoryConfig.Format format = switch (Saxon.xpath2string(config, "format").trim()) {
                 case "json" -> DreamFactoryConfig.Format.JSON;
                 case "html" -> DreamFactoryConfig.Format.HTML;
                 case "ttl" -> DreamFactoryConfig.Format.TTL;
                 default -> throw new RecipeParseException("Missing required format (json / html / ttl)");
             };
 
-            String xml2HtmlPath = Saxon.xpath2string(config, "xml2html-path");
+            String xml2HtmlPath = Saxon.xpath2string(config, "xml2html-path").trim();
             XsltTransformer toHtmlTransformer = Saxon.buildTransformer(new File(xml2HtmlPath)).load();
             JsonToHtml toHtml = new JsonToHtml(toHtmlTransformer);
 
@@ -66,7 +70,7 @@ public class DreamFactoryRecipe implements Recipe<DreamFactoryRecipe.DreamFactor
             dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
             DocumentBuilder db = dbf.newDocumentBuilder();
 
-            String ttlSchemaPath = Saxon.xpath2string(config, "ttl-schema-path");
+            String ttlSchemaPath = Saxon.xpath2string(config, "ttl-schema-path").trim();
             Document ttlSchema = db.parse(new FileInputStream(ttlSchemaPath));
             JsonToTtl toTtl = new JsonToTtl(ttlSchema);
 
@@ -79,9 +83,9 @@ public class DreamFactoryRecipe implements Recipe<DreamFactoryRecipe.DreamFactor
     @Override
     public RecipeResponse withData(RecipeData<DreamFactoryConfig> data) throws RecipeException {
         try {
+            String table = data.config().table() == null ? data.pathParams().get("table") : data.config().table();
             String url = String.format("%s/api/v2/%s/_table/%s",
-                    data.config().baseUrl(), data.config().type(),
-                    URLEncoder.encode(data.config().table(), StandardCharsets.UTF_8));
+                    data.config().baseUrl(), data.config().type(), URLEncoder.encode(table, StandardCharsets.UTF_8));
 
             if (data.pathParams().get("id") != null) {
                 String related = data.config().related();

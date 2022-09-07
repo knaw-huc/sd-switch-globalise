@@ -12,6 +12,8 @@
   <modules>
     <module>recipe</module>
     <module>server</module>
+    <module>redirect</module>
+    <module>provider</module>
     <module>helloworld</module>
     <module>dreamfactory</module>
   </modules>
