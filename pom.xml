@@ -24,7 +24,19 @@
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <module.group.ids>org.knaw.huc,io.javalin,nl.mpi.tla,net.sf.saxon,org.sharegov</module.group.ids>
+    <module.group.ids>
+      org.knaw.huc,
+      io.javalin,
+      nl.mpi.tla,
+      net.sf.saxon,
+      org.sharegov,
+      com.fasterxml.jackson,
+      javax.xml.bind,
+      javax.activation,
+      javax.ws.rs,
+      org.slf4j,
+      slf4j.api
+    </module.group.ids>
   </properties>
 
   <dependencies>
