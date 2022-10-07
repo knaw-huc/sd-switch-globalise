@@ -55,6 +55,6 @@ public class SatosaProxyRecipe implements Recipe<SatosaProxyRecipe.SatosaProxyCo
             return RecipeResponse.withRedirect(data.config().openID().createAuthUri(state).toString());
         }
 
-
+        
     }
 }

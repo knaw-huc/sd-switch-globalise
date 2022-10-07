@@ -29,7 +29,8 @@ public class Switch<C> {
 
     public void handle(Context context) {
         try {
-            RecipeData<C> data = new RecipeData<>(context.pathParamMap(), context.headerMap(),  config);
+            RecipeData<C> data = new RecipeData<>(context.pathParamMap(), context.queryParamMap(),
+                    context.headerMap(),  config);
             RecipeResponse response = recipe.withData(data);
 
             if (response != null) {
