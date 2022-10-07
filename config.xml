@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sd-switch>
+    <switch recipe="org.knaw.huc.sdswitch.recipe.SatosaProxyRecipe">
+        <satosa clientid="" clientsecret=""/>
+        <url pattern="/textrepo/{api:.*}"/>
+        <authorisation file="/opt/users.txt" use="white"/>
+    </switch>
+</sd-switch>
