@@ -53,6 +53,8 @@ public class SatosaProxyRecipe implements Recipe<SatosaProxyRecipe.SatosaProxyCo
 
     @Override
     public RecipeResponse withData(RecipeData<SatosaProxyConfig> data) {
+        System.err.println("?DBG: Welkom");
+
         try {
             UserInfo userInfo = null;
             if (data.queryParams().containsKey("code")) {
