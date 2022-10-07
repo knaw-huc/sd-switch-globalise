@@ -27,8 +27,8 @@ public class SatosaProxyRecipe implements Recipe<SatosaProxyRecipe.SatosaProxyCo
         final URI applicationUrl = URI.create(System.getenv().getOrDefault("APPLICATION_URL", "http://localhost"));
         final URI redirectUrl = UriBuilder.fromUri(applicationUrl).path("/redirect").build();
 
-        final String clientId = System.getenv().get("OIDC_CLIENT_ID");
-        final String clientSecret = System.getenv().get("OIDC_CLIENT_SECRET");
+        final String clientId = Saxon.xpath2string(config, "satosa/@clientid");
+        final String clientSecret = Saxon.xpath2string(config, "satosa/@clientsecret");
 
         Map<String, Essential> userInfoClaims = new HashMap<>();
         userInfoClaims.put("edupersontargetedid", null);
@@ -46,19 +46,28 @@ public class SatosaProxyRecipe implements Recipe<SatosaProxyRecipe.SatosaProxyCo
 
     @Override
     public RecipeResponse withData(RecipeData<SatosaProxyConfig> data) {
-        // Get auth key
-        String auth = null;
-        if (data.headers().containsKey("Authorization"))
-            auth = data.headers().get("Authorization").replaceFirst("^Basic:", "").trim();
+        UserInfo userInfo = null;
+        if (data.queryParams.containsKey("code")) {
+            // 1. check if we can access user info, if so use it, else
+            Tokens tokens = data.config().openID().getTokens(data.queryParams.get("code"), false);
+            userInfo = data.config().openID().getUserInfo(accessToken);
+        } else if (data.headers().containsKey("Authorization")) {
+            String auth = data.headers().get("Authorization").replaceFirst("^Basic:", "").trim();
 
-        // Start login flow
-        if (auth == null) {
+            // 2. check if there is a delegation token, if so use it, else
+            // 3. check if there is an API key, if so use it, else
+            //userInfo = ...
+        } else {
+            // 4. login via OAuth, we'll come back via 1.
+
+            // Start login flow
             String state = UUID.randomUUID().toString();
             return RecipeResponse.withRedirect(data.config().openID().createAuthUri(state).toString());
         }
+        //check userInfo against white/blacklist
 
-        Tokens tokens = data.config().openID().getTokens(code, false);
-        UserInfo userInfo = data.config().openID().getUserInfo(accessToken);
+        //if allowed proxy ..
+
 
 
     }
