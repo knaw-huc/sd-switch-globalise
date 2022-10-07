@@ -3,6 +3,8 @@ package org.knaw.huc.sdswitch.satosa;
 import net.sf.saxon.s9api.XdmItem;
 import org.knaw.huc.auth.OpenID;
 import org.knaw.huc.auth.data.Essential;
+import org.knaw.huc.auth.data.Tokens;
+import org.knaw.huc.auth.data.UserInfo;
 import org.knaw.huc.sdswitch.recipe.Recipe;
 import org.knaw.huc.sdswitch.recipe.RecipeData;
 import org.knaw.huc.sdswitch.recipe.RecipeParseException;
@@ -55,6 +57,9 @@ public class SatosaProxyRecipe implements Recipe<SatosaProxyRecipe.SatosaProxyCo
             return RecipeResponse.withRedirect(data.config().openID().createAuthUri(state).toString());
         }
 
-        
+        Tokens tokens = data.config().openID().getTokens(code, false);
+        UserInfo userInfo = data.config().openID().getUserInfo(accessToken);
+
+
     }
 }
