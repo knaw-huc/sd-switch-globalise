@@ -46,7 +46,7 @@ public class SatosaProxyRecipe implements Recipe<SatosaProxyRecipe.SatosaProxyCo
 
             return new SatosaProxyConfig(openID);
         } catch(Exception e) {
-            System.err.println("ERR: "+e.getMessage());
+            System.err.println("!ERR: "+e.getMessage());
             return null;
         }
     }
@@ -72,9 +72,10 @@ public class SatosaProxyRecipe implements Recipe<SatosaProxyRecipe.SatosaProxyCo
                 String state = UUID.randomUUID().toString();
                 return RecipeResponse.withRedirect(data.config().openID().createAuthUri(state).toString());
             }
+            System.err.println("?DBG:"+userInfo);
             //check userInfo against white/blacklist
         } catch(Exception e) {
-            System.err.println("ERR: "+e.getMessage());
+            System.err.println("!ERR: "+e.getMessage());
         }
 
         //if allowed proxy ..
