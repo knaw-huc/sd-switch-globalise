@@ -28,7 +28,7 @@ public class SatosaProxyRecipe implements Recipe<SatosaProxyRecipe.SatosaProxyCo
         try {
             final URI oidcServer = URI.create(System.getenv().get("OIDC_SERVER"));
             final URI applicationUrl = URI.create(System.getenv().getOrDefault("APPLICATION_URL", "http://localhost"));
-            final URI redirectUrl = UriBuilder.fromUri(applicationUrl).path("/redirect").build();
+            final URI redirectUrl = UriBuilder.fromUri(applicationUrl).path("/test").build();
 
             final String clientId = Saxon.xpath2string(config, "satosa/@clientid");
             final String clientSecret = Saxon.xpath2string(config, "satosa/@clientsecret");
