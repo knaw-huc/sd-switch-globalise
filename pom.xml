@@ -16,6 +16,8 @@
     <module>provider</module>
     <module>helloworld</module>
     <module>dreamfactory</module>
+    <module>auth</module>
+    <module>Satosa</module>
   </modules>
 
   <properties>

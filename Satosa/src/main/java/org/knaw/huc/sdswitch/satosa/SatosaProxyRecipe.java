@@ -17,56 +17,68 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import nl.mpi.tla.util.Saxon;
+
 public class SatosaProxyRecipe implements Recipe<SatosaProxyRecipe.SatosaProxyConfig> {
     record SatosaProxyConfig(OpenID openID) {
     }
 
     @Override
     public SatosaProxyConfig parseConfig(XdmItem config, Set<String> pathParams) throws RecipeParseException {
-        final URI oidcServer = URI.create(System.getenv().get("OIDC_SERVER"));
-        final URI applicationUrl = URI.create(System.getenv().getOrDefault("APPLICATION_URL", "http://localhost"));
-        final URI redirectUrl = UriBuilder.fromUri(applicationUrl).path("/redirect").build();
+        try {
+            final URI oidcServer = URI.create(System.getenv().get("OIDC_SERVER"));
+            final URI applicationUrl = URI.create(System.getenv().getOrDefault("APPLICATION_URL", "http://localhost"));
+            final URI redirectUrl = UriBuilder.fromUri(applicationUrl).path("/redirect").build();
 
-        final String clientId = Saxon.xpath2string(config, "satosa/@clientid");
-        final String clientSecret = Saxon.xpath2string(config, "satosa/@clientsecret");
+            final String clientId = Saxon.xpath2string(config, "satosa/@clientid");
+            final String clientSecret = Saxon.xpath2string(config, "satosa/@clientsecret");
 
-        Map<String, Essential> userInfoClaims = new HashMap<>();
-        userInfoClaims.put("edupersontargetedid", null);
-        userInfoClaims.put("schac_home_organisation", null);
-        userInfoClaims.put("nickname", null);
-        userInfoClaims.put("email", null);
-        userInfoClaims.put("eppn", null);
-        userInfoClaims.put("idp", null);
+            Map<String, Essential> userInfoClaims = new HashMap<>();
+            userInfoClaims.put("edupersontargetedid", null);
+            userInfoClaims.put("schac_home_organisation", null);
+            userInfoClaims.put("nickname", null);
+            userInfoClaims.put("email", null);
+            userInfoClaims.put("eppn", null);
+            userInfoClaims.put("idp", null);
 
-        OpenID openID = new OpenID(oidcServer, redirectUrl, clientId, clientSecret,
-                Map.of("userinfo", userInfoClaims), "openid", "email", "profile");
+            OpenID openID = new OpenID(oidcServer, redirectUrl, clientId, clientSecret,
+                    Map.of("userinfo", userInfoClaims), "openid", "email", "profile");
 
-        return new SatosaProxyConfig(openID);
+            return new SatosaProxyConfig(openID);
+        } catch(Exception e) {
+            System.err.println("ERR: "+e.getMessage());
+            return null;
+        }
     }
 
     @Override
     public RecipeResponse withData(RecipeData<SatosaProxyConfig> data) {
-        UserInfo userInfo = null;
-        if (data.queryParams.containsKey("code")) {
-            // 1. check if we can access user info, if so use it, else
-            Tokens tokens = data.config().openID().getTokens(data.queryParams.get("code"), false);
-            userInfo = data.config().openID().getUserInfo(accessToken);
-        } else if (data.headers().containsKey("Authorization")) {
-            String auth = data.headers().get("Authorization").replaceFirst("^Basic:", "").trim();
+        try {
+            UserInfo userInfo = null;
+            if (data.queryParams().containsKey("code")) {
+                // 1. check if we can access user info, if so use it, else
+                Tokens tokens = data.config().openID().getTokens(data.queryParams().get("code").get(0), false);
+                userInfo = data.config().openID().getUserInfo(tokens.accessToken());
+            } else if (data.headers().containsKey("Authorization")) {
+                String auth = data.headers().get("Authorization").replaceFirst("^Basic:", "").trim();
 
-            // 2. check if there is a delegation token, if so use it, else
-            // 3. check if there is an API key, if so use it, else
-            //userInfo = ...
-        } else {
-            // 4. login via OAuth, we'll come back via 1.
+                // 2. check if there is a delegation token, if so use it, else
+                // 3. check if there is an API key, if so use it, else
+                //userInfo = ...
+            } else {
+                // 4. login via OAuth, we'll come back via 1.
 
-            // Start login flow
-            String state = UUID.randomUUID().toString();
-            return RecipeResponse.withRedirect(data.config().openID().createAuthUri(state).toString());
+                // Start login flow
+                String state = UUID.randomUUID().toString();
+                return RecipeResponse.withRedirect(data.config().openID().createAuthUri(state).toString());
+            }
+            //check userInfo against white/blacklist
+        } catch(Exception e) {
+            System.err.println("ERR: "+e.getMessage());
         }
-        //check userInfo against white/blacklist
 
         //if allowed proxy ..
+        return null;
 
 
 
