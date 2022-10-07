@@ -76,14 +76,16 @@ public class SatosaProxyRecipe implements Recipe<SatosaProxyRecipe.SatosaProxyCo
             }
             System.err.println("?DBG:"+userInfo);
             //check userInfo against white/blacklist
+
+            //if allowed proxy ..
+            return RecipeResponse.withBody("Het is gelukt! " + userInfo, "text/plain");
         } catch(Exception e) {
             System.err.println("!ERR: "+e.getMessage());
         }
 
-        //if allowed proxy ..
-        return null;
 
 
 
+        return RecipeResponse.withBody("Helaas pindakaas!", "text/plain");
     }
 }
