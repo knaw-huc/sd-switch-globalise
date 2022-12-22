@@ -29,36 +29,9 @@ public class Switch<C> {
 
     public void handle(Context context) {
         try {
-            RecipeData<C> data = new RecipeData<>(context.pathParamMap(), config);
+            RecipeData<C> data = new RecipeDataImpl<>(config, context);
             RecipeResponse response = recipe.withData(data);
-
-            if (response != null) {
-                context.status(response.statusCode());
-
-                if (response.redirect() != null) {
-                    context.redirect(response.redirect());
-                    return;
-                }
-
-                if (response.contentType() != null) {
-                    context.contentType(response.contentType());
-                }
-
-                if (response.body() != null) {
-                    context.result(response.body());
-                    return;
-                }
-
-                if (response.byteArray() != null) {
-                    context.result(response.byteArray());
-                    return;
-                }
-
-                if (response.inputStream() != null) {
-                    context.result(response.inputStream());
-                    return;
-                }
-            }
+            withRecipeResponse(response, context);
 
             throw new RecipeException("No data from recipe!");
         } catch (RecipeException ex) {
@@ -69,5 +42,33 @@ public class Switch<C> {
 
     public static <C> Switch<C> createSwitch(Recipe<C> recipe, String urlPattern, String acceptMimeType, C config) {
         return new Switch<>(recipe, urlPattern, acceptMimeType, config);
+    }
+
+    private static void withRecipeResponse(RecipeResponse response, Context context) {
+        if (response != null) {
+            context.status(response.statusCode());
+
+            if (response.redirect() != null) {
+                context.redirect(response.redirect());
+                return;
+            }
+
+            if (response.contentType() != null) {
+                context.contentType(response.contentType());
+            }
+
+            if (response.body() != null) {
+                context.result(response.body());
+                return;
+            }
+
+            if (response.byteArray() != null) {
+                context.result(response.byteArray());
+                return;
+            }
+
+            if (response.inputStream() != null)
+                context.result(response.inputStream());
+        }
     }
 }

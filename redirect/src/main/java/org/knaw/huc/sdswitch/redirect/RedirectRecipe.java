@@ -46,7 +46,7 @@ public class RedirectRecipe implements Recipe<RedirectRecipe.RedirectRecipeConfi
 
     @Override
     public RecipeResponse withData(RecipeData<RedirectRecipeConfig> data) {
-        Matcher matcher = data.config().pattern().matcher(data.pathParams().get("path"));
+        Matcher matcher = data.config().pattern().matcher(data.pathParam("path"));
         if (matcher.matches()) {
             String redirectTo = matcher.replaceFirst(data.config().url());
             return RecipeResponse.withRedirect(redirectTo, data.config().isTempRedirect() ? 302 : 301);

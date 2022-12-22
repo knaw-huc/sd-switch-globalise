@@ -83,11 +83,11 @@ public class DreamFactoryRecipe implements Recipe<DreamFactoryRecipe.DreamFactor
     @Override
     public RecipeResponse withData(RecipeData<DreamFactoryConfig> data) throws RecipeException {
         try {
-            String table = data.config().table() == null ? data.pathParams().get("table") : data.config().table();
+            String table = data.config().table() == null ? data.pathParam("table") : data.config().table();
             String url = String.format("%s/api/v2/%s/_table/%s",
                     data.config().baseUrl(), data.config().type(), URLEncoder.encode(table, StandardCharsets.UTF_8));
 
-            if (data.pathParams().get("id") != null) {
+            if (data.pathParam("id") != null) {
                 String related = data.config().related();
                 if (related == null) {
                     related = "";
@@ -96,7 +96,7 @@ public class DreamFactoryRecipe implements Recipe<DreamFactoryRecipe.DreamFactor
                 }
                 // related=* gives 'not implemented'
                 url += String.format("/%s?fields=*%s",
-                        URLEncoder.encode(data.pathParams().get("id"), StandardCharsets.UTF_8),
+                        URLEncoder.encode(data.pathParam("id"), StandardCharsets.UTF_8),
                         related);
             }
 

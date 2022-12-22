@@ -19,6 +19,6 @@ public class HelloWorldRecipe implements Recipe<Void> {
 
     @Override
     public RecipeResponse withData(RecipeData<Void> data) {
-        return RecipeResponse.withBody("Hello " + data.pathParams().get("name"), "text/plain");
+        return RecipeResponse.withBody("Hello " + data.pathParam("name"), "text/plain");
     }
 }

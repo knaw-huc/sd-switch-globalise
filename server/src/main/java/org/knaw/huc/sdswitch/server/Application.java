@@ -1,7 +1,7 @@
 package org.knaw.huc.sdswitch.server;
 
 import io.javalin.Javalin;
-import io.javalin.core.util.JavalinLogger;
+import io.javalin.util.JavalinLogger;
 import org.knaw.huc.sdswitch.server.config.Router;
 import org.knaw.huc.sdswitch.server.config.Switch;
 import org.knaw.huc.sdswitch.server.config.SwitchLoader;
@@ -24,7 +24,6 @@ public class Application {
         final int port = Integer.parseInt(System.getenv().getOrDefault("SERVER_PORT", "8080"));
         final Javalin app = Javalin.create(config -> {
             config.showJavalinBanner = false;
-            config.enableDevLogging();
         }).start(port);
 
         List<String> urlPatterns = switches.keySet().stream()

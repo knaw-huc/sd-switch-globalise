@@ -15,6 +15,7 @@ public class Router {
     public Router(Javalin app, String urlPattern, Set<Switch<?>> switches) {
         this.switches = switches;
         app.get(urlPattern, this::withRequest);
+        app.post(urlPattern, this::withRequest);
     }
 
     private void withRequest(Context ctx) {

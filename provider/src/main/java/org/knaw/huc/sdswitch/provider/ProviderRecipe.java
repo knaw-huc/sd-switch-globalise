@@ -61,8 +61,8 @@ public class ProviderRecipe implements Recipe<ProviderRecipe.ProviderRecipeConfi
     public RecipeResponse withData(RecipeData<ProviderRecipeConfig> data) throws RecipeException {
         try {
             Path path;
-            if (data.pathParams().containsKey("path")) {
-                Matcher matcher = data.config().pattern().matcher(data.pathParams().get("path"));
+            if (data.pathParam("path") != null) {
+                Matcher matcher = data.config().pattern().matcher(data.pathParam("path"));
                 if (!matcher.matches()) {
                     return RecipeResponse.withStatus("Not Found", 404);
                 }
