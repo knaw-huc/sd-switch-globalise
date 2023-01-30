@@ -48,13 +48,13 @@ public class OpenID {
 
     public URI createUserInfoUri() {
         return UriBuilder.fromUri(oidcServer)
-                .path("OIDC/userinfo")
+                .path("protocol/openid-connect/userinfo")
                 .build();
     }
 
     public URI createAuthUri(Object state) {
         return UriBuilder.fromUri(oidcServer)
-                .path("Saml2/OIDC/authorization")
+                .path("protocol/openid-connect/auth")
                 .queryParam("client_id", clientId)
                 .queryParam("response_type", "code")
                 .queryParam("redirect_uri", redirectUri)
@@ -66,7 +66,7 @@ public class OpenID {
 
     public URI createTokensUri() {
         return UriBuilder.fromUri(oidcServer)
-                .path("OIDC/token")
+                .path("protocol/openid-connect/token")
                 .build();
     }
 
