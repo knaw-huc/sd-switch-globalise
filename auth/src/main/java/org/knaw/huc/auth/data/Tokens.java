@@ -6,5 +6,6 @@ public record Tokens(@JsonProperty("access_token") String accessToken,
                      @JsonProperty("token_type") String tokenType,
                      @JsonProperty("refresh_token") String refreshToken,
                      @JsonProperty("expires_in") long expiresIn,
+                     @JsonProperty("refresh_expires_in") long refreshExpireIn,
                      @JsonProperty("id_token") String idToken) {
 }
