@@ -60,7 +60,7 @@ public class OpenID {
                 .queryParam("redirect_uri", redirectUri)
                 .queryParam("scope", String.join(" ", scope))
                 .queryParam("state", state)
-                .queryParam("claims", URLEncoder.encode(claims, StandardCharsets.UTF_8))
+                //.queryParam("claims", URLEncoder.encode(claims, StandardCharsets.UTF_8))
                 .build();
     }
 
