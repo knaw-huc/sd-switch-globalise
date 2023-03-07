@@ -1,5 +1,0 @@
-<sd-switch>
-  <switch recipe="org.knaw.huc.sdswitch.helloworld.HelloWorldRecipe">
-    <url pattern="/test/{name}"/>
-  </switch>
-</sd-switch>

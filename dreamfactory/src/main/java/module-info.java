@@ -1,8 +1,9 @@
-module org.knaw.huc.sdswitch.dreamfactory {
+module nl.knaw.huc.sdswitch.dreamfactory {
     requires java.xml;
+    requires mjson;
     requires Saxon.HE;
     requires SaxonUtils;
-    requires mjson;
-    requires org.knaw.huc.sdswitch.recipe;
-    provides org.knaw.huc.sdswitch.recipe.Recipe with org.knaw.huc.sdswitch.dreamfactory.DreamFactoryRecipe;
+    requires nl.knaw.huc.sdswitch.recipe;
+    provides nl.knaw.huc.sdswitch.recipe.Recipe with nl.knaw.huc.sdswitch.dreamfactory.DreamFactoryRecipe;
+    opens nl.knaw.huc.sdswitch.dreamfactory to com.fasterxml.jackson.databind;
 }

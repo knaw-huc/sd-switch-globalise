@@ -10,7 +10,7 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>recipe</artifactId>
+  <artifactId>data</artifactId>
   <packaging>jar</packaging>
 
   <build>
@@ -21,4 +21,12 @@
       </plugin>
     </plugins>
   </build>
+
+  <dependencies>
+    <dependency>
+      <groupId>nl.knaw.huc</groupId>
+      <artifactId>recipe</artifactId>
+      <version>1.0-SNAPSHOT</version>
+    </dependency>
+  </dependencies>
 </project>

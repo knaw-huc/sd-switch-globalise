@@ -12,4 +12,4 @@ COPY --from=build /app/mp /app/mp
 
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-cp", "/app/cp/*", "-p", "/app/mp", "-m", "org.knaw.huc.sdswitch.server/org.knaw.huc.sdswitch.server.Application"]
+ENTRYPOINT ["java", "-cp", "/app/cp/*", "-p", "/app/mp", "-m", "nl.knaw.huc.sdswitch.server/nl.knaw.huc.sdswitch.server.Application"]
