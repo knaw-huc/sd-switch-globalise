@@ -1,5 +1,6 @@
 package nl.knaw.huc.sdswitch.server.config;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -7,10 +8,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import nl.knaw.huc.sdswitch.recipe.ConfigMappingRecipe;
 import nl.knaw.huc.sdswitch.recipe.Recipe;
 import nl.knaw.huc.sdswitch.recipe.RecipeMappingException;
 import nl.knaw.huc.sdswitch.recipe.RecipeValidationException;
+import nl.knaw.huc.sdswitch.server.routing.Switch;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,7 +30,8 @@ import java.util.stream.Collectors;
 
 public class SwitchLoader {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper(new YAMLFactory())
-            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            .registerModule(new ParameterNamesModule(JsonCreator.Mode.PROPERTIES));
     private static final Pattern PATH_PATTERN = Pattern.compile("(?<=[{<]).+?(?=[}>])");
 
     private final Map<String, Recipe<?>> recipes;
