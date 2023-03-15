@@ -7,7 +7,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import nl.knaw.huc.sdswitch.recipe.ConfigMappingRecipe;
 import nl.knaw.huc.sdswitch.recipe.Recipe;
+import nl.knaw.huc.sdswitch.recipe.RecipeMappingException;
 import nl.knaw.huc.sdswitch.recipe.RecipeValidationException;
 
 import java.io.IOException;
@@ -59,14 +61,14 @@ public class SwitchLoader {
             }
 
             return switches;
-        } catch (IOException | RecipeValidationException e) {
+        } catch (IOException | RecipeValidationException | RecipeMappingException e) {
             throw new SwitchException("Failed to parse switches config", e);
         }
     }
 
     private static <C> void withSwitchConfig(Map<String, Set<Switch<?>>> switches, Recipe<C> recipe,
                                              SwitchConfig parentConfig, SwitchConfig childConfig)
-            throws JsonProcessingException, SwitchException, RecipeValidationException {
+            throws JsonProcessingException, SwitchException, RecipeMappingException, RecipeValidationException {
         Set<SwitchConfig.Url> urlItems = childConfig != null ? childConfig.urls() : parentConfig.urls();
         if (urlItems == null)
             throw new SwitchException("A switch is missing at least one 'url' item");
@@ -92,16 +94,17 @@ public class SwitchLoader {
 
     private static <C> Switch<C> createSwitch(Recipe<C> recipe, String urlPattern,
                                               String acceptMimeType, JsonNode configNode)
-            throws JsonProcessingException, RecipeValidationException {
+            throws JsonProcessingException, RecipeMappingException, RecipeValidationException {
         Set<String> pathParams = PATH_PATTERN
                 .matcher(urlPattern)
                 .results()
                 .map(MatchResult::group)
                 .collect(Collectors.toSet());
 
-        Class<C> configClass = (Class<C>)
-                ((ParameterizedType) recipe.getClass().getGenericInterfaces()[0]).getActualTypeArguments()[0];
-        C config = OBJECT_MAPPER.treeToValue(configNode, configClass);
+        C config = (recipe instanceof ConfigMappingRecipe<C, ?> configMappingRecipe)
+                ? getConfig(configMappingRecipe, configNode)
+                : getConfig(recipe, configNode);
+
         recipe.validateConfig(config, pathParams);
 
         return Switch.createSwitch(recipe, urlPattern, acceptMimeType, config);
@@ -119,5 +122,23 @@ public class SwitchLoader {
                 objectNodeA.set(fieldName, value);
             }
         }
+    }
+
+    private static <C, M> C getConfig(ConfigMappingRecipe<C, M> recipe, JsonNode configNode)
+            throws JsonProcessingException, RecipeMappingException {
+        Class<M> configClass = getClassOfType(recipe, 1);
+        M mapping = OBJECT_MAPPER.treeToValue(configNode, configClass);
+        return recipe.getConfig(mapping);
+    }
+
+    private static <C> C getConfig(Recipe<C> recipe, JsonNode configNode) throws JsonProcessingException {
+        Class<C> configClass = getClassOfType(recipe, 0);
+        return OBJECT_MAPPER.treeToValue(configNode, configClass);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> Class<T> getClassOfType(Object object, int genericIdx) {
+        ParameterizedType type = (ParameterizedType) object.getClass().getGenericInterfaces()[0];
+        return (Class<T>) type.getActualTypeArguments()[genericIdx];
     }
 }

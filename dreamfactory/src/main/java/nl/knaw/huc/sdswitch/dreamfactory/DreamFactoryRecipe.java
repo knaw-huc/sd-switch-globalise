@@ -2,12 +2,15 @@ package nl.knaw.huc.sdswitch.dreamfactory;
 
 import mjson.Json;
 import net.sf.saxon.s9api.SaxonApiException;
-import nl.knaw.huc.sdswitch.recipe.Recipe;
+import nl.knaw.huc.sdswitch.recipe.ConfigMappingRecipe;
 import nl.knaw.huc.sdswitch.recipe.RecipeData;
 import nl.knaw.huc.sdswitch.recipe.RecipeException;
+import nl.knaw.huc.sdswitch.recipe.RecipeMappingException;
 import nl.knaw.huc.sdswitch.recipe.RecipeResponse;
 import nl.knaw.huc.sdswitch.recipe.RecipeValidationException;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -19,20 +22,32 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class DreamFactoryRecipe implements Recipe<DreamFactoryRecipe.DreamFactoryConfig> {
+public class DreamFactoryRecipe implements
+        ConfigMappingRecipe<DreamFactoryRecipe.DreamFactoryConfig, DreamFactoryRecipe.DreamFactoryMappedConfig> {
     record DreamFactoryConfig(String type, String table, String baseUrl, String accept, String apiKey,
-                              String related, String format, String xml2HtmlPath, String ttlSchemaPath,
-                              JsonToHtml jsonToHtml, JsonToTtl jsonToTtl) {
-        public DreamFactoryConfig {
-            try {
-                jsonToHtml = new JsonToHtml(xml2HtmlPath);
-            } catch (Exception ignored) {
-            }
+                              List<String> related, String format, JsonToHtml jsonToHtml, JsonToTtl jsonToTtl) {
+    }
 
-            try {
-                jsonToTtl = new JsonToTtl(ttlSchemaPath);
-            } catch (Exception ignored) {
-            }
+    record DreamFactoryMappedConfig(String type, String table, String baseUrl, String accept, String apiKey,
+                                    List<String> related, String format, String xml2HtmlPath, String ttlSchemaPath) {
+    }
+
+    @Override
+    public DreamFactoryConfig getConfig(DreamFactoryMappedConfig mapped) throws RecipeMappingException {
+        try {
+            if (mapped.xml2HtmlPath == null)
+                throw new RecipeMappingException("Missing required 'xml2HtmlPath'");
+
+            if (mapped.ttlSchemaPath == null)
+                throw new RecipeMappingException("Missing required 'ttlSchemaPath'");
+
+            JsonToHtml jsonToHtml = new JsonToHtml(mapped.xml2HtmlPath);
+            JsonToTtl jsonToTtl = new JsonToTtl(mapped.ttlSchemaPath);
+
+            return new DreamFactoryConfig(mapped.type, mapped.table, mapped.baseUrl, mapped.accept,
+                    mapped.apiKey, mapped.related, mapped.format, jsonToHtml, jsonToTtl);
+        } catch (ParserConfigurationException | IOException | SaxonApiException | SAXException ex) {
+            throw new RecipeMappingException(ex.getMessage(), ex);
         }
     }
 
@@ -58,12 +73,6 @@ public class DreamFactoryRecipe implements Recipe<DreamFactoryRecipe.DreamFactor
             if (config.format == null || !List.of("json", "html", "ttl").contains(config.format))
                 throw new RecipeValidationException("Missing required 'format' (json / html / ttl)");
 
-            if (config.xml2HtmlPath == null)
-                throw new RecipeValidationException("Missing required 'xml2HtmlPath'");
-
-            if (config.ttlSchemaPath == null)
-                throw new RecipeValidationException("Missing required 'ttlSchemaPath'");
-
             if (config.jsonToHtml == null)
                 throw new RecipeValidationException("Invalid 'xml2HtmlPath'");
 
@@ -82,11 +91,10 @@ public class DreamFactoryRecipe implements Recipe<DreamFactoryRecipe.DreamFactor
                     data.config().baseUrl(), data.config().type(), URLEncoder.encode(table, StandardCharsets.UTF_8));
 
             if (data.pathParam("id") != null) {
-                String related = data.config().related();
-                if (related == null) {
-                    related = "";
-                } else {
-                    related = "&related=" + URLEncoder.encode(related, StandardCharsets.UTF_8);
+                String related = "";
+                if (!data.config().related().isEmpty()) {
+                    related = "&related=" + URLEncoder.encode(
+                            String.join(",", data.config().related()), StandardCharsets.UTF_8);
                 }
                 // related=* gives 'not implemented'
                 url += String.format("/%s?fields=*%s",
@@ -110,12 +118,7 @@ public class DreamFactoryRecipe implements Recipe<DreamFactoryRecipe.DreamFactor
 
             Json jsonObject = Json.read(text);
             // Get the references from config
-            String related = data.config().related();
-            if (related == null) {
-                related = "";
-            }
-            String[] relations = related.split(",");
-            for (String relation : relations) {
+            for (String relation : data.config().related()) {
                 fillReference(jsonObject, relation);
             }
 

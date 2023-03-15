@@ -5,7 +5,6 @@ import nl.knaw.huc.sdswitch.recipe.RecipeData;
 import nl.knaw.huc.sdswitch.recipe.RecipeException;
 import nl.knaw.huc.sdswitch.recipe.RecipeResponse;
 import nl.knaw.huc.sdswitch.recipe.RecipeValidationException;
-import nl.knaw.huc.sdswitch.recipe.*;
 
 import java.io.IOException;
 import java.nio.file.Files;

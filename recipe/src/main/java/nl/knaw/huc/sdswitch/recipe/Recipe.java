@@ -6,7 +6,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public interface Recipe<C> {
-    void validateConfig(C config, Set<String> pathParams) throws RecipeValidationException;
+    default void validateConfig(C config, Set<String> pathParams) throws RecipeValidationException { }
 
     RecipeResponse withData(RecipeData<C> data) throws RecipeException;
 
