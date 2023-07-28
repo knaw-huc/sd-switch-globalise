@@ -1,10 +1,11 @@
 package nl.knaw.huc.sdswitch.server;
 
 import io.javalin.Javalin;
-import io.javalin.util.JavalinLogger;
 import nl.knaw.huc.sdswitch.server.config.Router;
 import nl.knaw.huc.sdswitch.server.config.Switch;
 import nl.knaw.huc.sdswitch.server.config.SwitchLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -13,6 +14,8 @@ import java.util.Map;
 import java.util.Set;
 
 public class Application {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Application.class);
+
     public static void main(String[] args) throws Exception {
         final InputStream configStream = System.getenv().get("CONFIG") != null
                 ? new FileInputStream(System.getenv().get("CONFIG"))
@@ -30,7 +33,7 @@ public class Application {
                 .sorted((p1, p2) -> -1 * Integer.compare(p1.length(), p2.length())).toList();
         for (String urlPattern : urlPatterns) {
             new Router(app, urlPattern, switches.get(urlPattern));
-            JavalinLogger.info("Configured a new switch for URL " + urlPattern);
+            LOGGER.info("Configured a new switch for URL " + urlPattern);
         }
     }
 }
