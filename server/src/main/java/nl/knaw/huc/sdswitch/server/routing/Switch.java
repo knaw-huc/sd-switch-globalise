@@ -8,12 +8,16 @@ import nl.knaw.huc.sdswitch.recipe.RecipeException;
 import nl.knaw.huc.sdswitch.recipe.RecipeResponse;
 import nl.knaw.huc.sdswitch.server.config.RecipeDataImpl;
 import nl.knaw.huc.sdswitch.server.queue.TaskQueue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.UUID;
 
 import static nl.knaw.huc.sdswitch.server.util.Server.DOMAIN;
 
 public class Switch<C> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Switch.class);
+
     private final Recipe<C> recipe;
     private final String urlPattern;
     private final String acceptMimeType;
@@ -71,7 +75,11 @@ public class Switch<C> {
             }
         } catch (RecipeException ex) {
             context.status(ex.getHttpStatus());
-            context.result(ex.getHttpStatus() != 500 ? ex.getMessage() : "Internal Server Error");
+            context.result(ex.isInternalServerError() ? "Internal Server Error" : ex.getMessage());
+
+            if (ex.isInternalServerError()) {
+                LOGGER.error("Request handling failed: " + ex.getMessage(), ex);
+            }
         }
     }
 

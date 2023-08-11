@@ -23,9 +23,9 @@ public class TextAnnoRecipe implements Recipe<TextAnnoRecipe.TextAnnoRecipeConfi
         }
     }
 
-    record TextAnnoRecipeConfig(String timbuctooUrl, String userId, String datasetName, String authorization,
-                                Set<ConfigNamespace> namespaces, SimpleIRI predicateToMatch,
-                                String iriPrefix, String typeSuffix) {
+    public record TextAnnoRecipeConfig(String timbuctooUrl, String userId, String datasetName, String authorization,
+                                       Set<ConfigNamespace> namespaces, SimpleIRI predicateToMatch,
+                                       String iriPrefix, String typeSuffix) {
     }
 
     @Override
@@ -61,7 +61,7 @@ public class TextAnnoRecipe implements Recipe<TextAnnoRecipe.TextAnnoRecipeConfi
             final RecipeTask task = new TextAnnoRecipeTask(data.config(), tempFile);
             return RecipeResponse.withTask(task, "application/json");
         } catch (IOException ex) {
-            throw new RecipeException("", ex);
+            throw new RecipeException("Failed to start processing task!", ex);
         }
     }
 }

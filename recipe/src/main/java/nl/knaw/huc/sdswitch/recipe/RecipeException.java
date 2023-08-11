@@ -24,4 +24,8 @@ public class RecipeException extends Exception {
     public int getHttpStatus() {
         return httpStatus;
     }
+
+    public boolean isInternalServerError() {
+        return httpStatus == 500;
+    }
 }

@@ -43,6 +43,8 @@ public class TextAnnoRecipeTask implements RecipeTask {
                     config.authorization(), out.toByteArray(), "text/turtle");
 
             Files.write(resultFile, OBJECT_MAPPER.writeValueAsBytes(jsonLdHandler.getIds()));
+        } catch (IllegalArgumentException ex) {
+            throw new RecipeException(ex.getMessage(), ex, 400);
         } catch (IOException | TimbuctooUpload.TimbuctooUploadException | URISyntaxException ex) {
             throw new RecipeException(ex.getMessage(), ex);
         }
