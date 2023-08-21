@@ -42,10 +42,15 @@ public class TimbuctooUpload {
 
         try (CloseableHttpResponse response = httpClient.execute(httpPost)) {
             if (response.getStatusLine().getStatusCode() != 202)
-                throw new TimbuctooUploadException();
+                throw new TimbuctooUploadException(
+                        "Failed to upload RDF to Timbuctoo: " + response.getStatusLine().getStatusCode() +
+                                " - " + response.getStatusLine().getReasonPhrase());
         }
     }
 
     public static class TimbuctooUploadException extends Exception {
+        public TimbuctooUploadException(String message) {
+            super(message);
+        }
     }
 }
