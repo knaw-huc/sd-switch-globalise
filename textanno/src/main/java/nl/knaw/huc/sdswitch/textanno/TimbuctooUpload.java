@@ -28,7 +28,7 @@ public class TimbuctooUpload {
     public void uploadRDF(String userId, String datasetName, String authorization,
                           byte[] body, String contentType)
             throws IOException, TimbuctooUploadException, URISyntaxException {
-        URI uploadEndpoint = new URI(url + "/v5/" + userId + "/" + datasetName + "/upload/rdf?async=true&forceCreation=true");
+        URI uploadEndpoint = new URI(url + "/" + userId + "/" + datasetName + "/upload/rdf?async=true&forceCreation=true");
 
         HttpEntity entity = MultipartEntityBuilder
                 .create()

@@ -44,33 +44,38 @@ public class Switch<C> {
             RecipeResponse response = recipe.withData(data);
 
             if (response != null) {
-                if (response instanceof RecipeResponse.StringResponse stringResponse) {
-                    if (stringResponse.contentType() != null) {
-                        context.contentType(stringResponse.contentType());
+                switch (response) {
+                    case RecipeResponse.StringResponse stringResponse -> {
+                        if (stringResponse.contentType() != null) {
+                            context.contentType(stringResponse.contentType());
+                        }
+                        context.status(stringResponse.statusCode());
+                        context.result(stringResponse.body());
                     }
-                    context.status(stringResponse.statusCode());
-                    context.result(stringResponse.body());
-                } else if (response instanceof RecipeResponse.BytesResponse bytesResponse) {
-                    if (bytesResponse.contentType() != null) {
-                        context.contentType(bytesResponse.contentType());
+                    case RecipeResponse.BytesResponse bytesResponse -> {
+                        if (bytesResponse.contentType() != null) {
+                            context.contentType(bytesResponse.contentType());
+                        }
+                        context.status(bytesResponse.statusCode());
+                        context.result(bytesResponse.body());
                     }
-                    context.status(bytesResponse.statusCode());
-                    context.result(bytesResponse.body());
-                } else if (response instanceof RecipeResponse.StreamResponse streamResponse) {
-                    if (streamResponse.contentType() != null) {
-                        context.contentType(streamResponse.contentType());
+                    case RecipeResponse.StreamResponse streamResponse -> {
+                        if (streamResponse.contentType() != null) {
+                            context.contentType(streamResponse.contentType());
+                        }
+                        context.status(streamResponse.statusCode());
+                        context.result(streamResponse.inputStream());
                     }
-                    context.status(streamResponse.statusCode());
-                    context.result(streamResponse.inputStream());
-                } else if (response instanceof RecipeResponse.RedirectResponse redirectResponse) {
-                    context.redirect(redirectResponse.url());
-                    context.status(redirectResponse.statusCode());
-                } else if (response instanceof RecipeResponse.AsyncTaskResponse taskResponse) {
-                    UUID uuid = taskQueue.addTask(taskResponse.task(), taskResponse.contentType());
-                    context.status(HttpStatus.ACCEPTED);
-                    context.header("Location", DOMAIN + "/task/" + uuid + "/status");
-                } else {
-                    throw new RecipeException("No data from recipe!");
+                    case RecipeResponse.RedirectResponse redirectResponse -> {
+                        context.redirect(redirectResponse.url());
+                        context.status(redirectResponse.statusCode());
+                    }
+                    case RecipeResponse.AsyncTaskResponse taskResponse -> {
+                        UUID uuid = taskQueue.addTask(taskResponse.task(), taskResponse.contentType());
+                        context.status(HttpStatus.ACCEPTED);
+                        context.header("Location", DOMAIN + "/task/" + uuid + "/status");
+                    }
+                    default -> throw new RecipeException("No data from recipe!");
                 }
             }
         } catch (RecipeException ex) {

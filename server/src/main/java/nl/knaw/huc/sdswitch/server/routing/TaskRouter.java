@@ -3,7 +3,6 @@ package nl.knaw.huc.sdswitch.server.routing;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
-import io.javalin.validation.JavalinValidation;
 import nl.knaw.huc.sdswitch.recipe.RecipeException;
 import nl.knaw.huc.sdswitch.server.queue.TaskQueue;
 import org.slf4j.Logger;
@@ -22,15 +21,10 @@ public class TaskRouter {
 
     private final TaskQueue taskQueue;
 
-    static {
-        JavalinValidation.register(UUID.class, UUID::fromString);
-    }
-
     public TaskRouter(Javalin app, TaskQueue taskQueue) {
         this.taskQueue = taskQueue;
         app.get("/task/{uuid}/status", this::withTaskStatusRequest);
         app.get("/task/{uuid}", this::withTaskResultRequest);
-
     }
 
     private void withTaskStatusRequest(Context ctx) {

@@ -19,6 +19,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import static nl.knaw.huc.sdswitch.server.util.Server.PORT;
 
@@ -29,7 +30,11 @@ public class Application {
     private final TaskQueue taskQueue;
 
     public Application() throws Exception {
-        app = Javalin.create(config -> config.showJavalinBanner = false).start(PORT);
+        app = Javalin.create(config -> {
+            config.showJavalinBanner = false;
+            config.validation.register(UUID.class, UUID::fromString);
+        }).start(PORT);
+
         app.exception(ValidationException.class, (e, ctx) -> ctx.result(e.getMessage()).status(400));
 
         final Path tasksDir = System.getenv().containsKey("TASKS_DIR")

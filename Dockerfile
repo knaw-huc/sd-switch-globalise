@@ -1,13 +1,12 @@
-FROM maven:3-openjdk-17-slim AS build
+FROM maven:3.9-eclipse-temurin-21 AS build
 
 COPY . /app
 WORKDIR /app
 
 RUN mvn install -DskipTests
-
 RUN mkdir -p server/target/dependency && (cd server/target/dependency; jar -xf ../server-1.0-SNAPSHOT.jar)
 
-FROM openjdk:17-alpine
+FROM eclipse-temurin:21-jre
 
 #COPY --from=build /app/cp /app/cp
 #COPY --from=build /app/mp /app/mp
