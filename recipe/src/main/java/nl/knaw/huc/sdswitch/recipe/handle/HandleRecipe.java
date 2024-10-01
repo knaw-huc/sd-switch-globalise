@@ -5,7 +5,20 @@ import nl.knaw.huc.sdswitch.recipe.RecipeData;
 import nl.knaw.huc.sdswitch.recipe.RecipeResponse;
 import nl.knaw.huc.sdswitch.recipe.RecipeValidationException;
 
+import org.apache.hc.client5.http.async.methods.SimpleHttpResponse;
+import org.apache.hc.client5.http.async.methods.SimpleRequestBuilder;
+import org.apache.hc.client5.http.impl.async.HttpAsyncClients;
+import org.apache.hc.client5.http.async.methods.SimpleHttpRequest;
+import org.apache.hc.client5.http.impl.async.CloseableHttpAsyncClient;
+
+import org.json.JSONObject;
+import org.json.JSONArray;
+
+import java.io.IOException;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.regex.Matcher;
 
 public class HandleRecipe implements Recipe<Void> {
     @Override
@@ -18,21 +31,30 @@ public class HandleRecipe implements Recipe<Void> {
 
     @Override
     public RecipeResponse withData(RecipeData<Void> data) {
+        String prefix = data.pathParam("prefix");
+        String suffix = data.pathParam("suffix");
+        String findUrl = "https://hdl.handle.net/api/handles/<"+prefix+">/<"+suffix+">?noredirect";
         // met een HttpClient doe een GET op https://hdl.handle.net/api/handles/<prefix>/<suffix>?noredirect
-        // je krijgt json terug 
-        // parseer die JSONObject json = JSONObject.fromObject(jsonString);
-        // haal hier de URL uit zie screenshot in slack
-        // doe een redirect naar de URL RecipeResponse.withRedirect(URL, 301);
-        //
-        // work to be done
-        // Matcher matcher = data.config().pattern().matcher(data.pathParam("path"));
-        // if (matcher.matches()) {
-        //     String redirectTo = matcher.replaceFirst(data.config().redirectTo());
-        //     return RecipeResponse.withRedirect(redirectTo, data.config().isTempRedirect() ? 302 : 301);
-        // }
-        // return RecipeResponse.withStatus("Not Found", 404);
-        //     return RecipeResponse.withRedirect(redirectTo, data.config().isTempRedirect() ? 302 : 301);
-        return RecipeResponse.withBody("Handle: " + data.pathParam("name"), "text/plain");
+        try (CloseableHttpAsyncClient httpclient = HttpAsyncClients.createDefault()) {
+            httpclient.start();
+            SimpleHttpRequest request = SimpleRequestBuilder.get("http://httpbin.org/get").build();
+            Future<SimpleHttpResponse> future = httpclient.execute(request, null);
+            // and wait until response is received
+            SimpleHttpResponse response = future.get();
+            // je krijgt json terug
+            // parseer die JSONObject json = JSONObject.fromObject(jsonString);
+            // haal hier de URL uit zie screenshot in slack
+            // doe een redirect naar de URL RecipeResponse.withRedirect(URL, 301);
+            String jsonString = response.getBodyText();
+            JSONObject json = new JSONObject(jsonString);
+            JSONArray jArray = json.getJSONArray("values");
+            JSONObject jAitem = jArray.getJSONObject(0);
+            String url = ((JSONObject)jAitem.get("data")).get("values").toString();
+            return RecipeResponse.withRedirect(url, 301);
+        } catch (IOException | InterruptedException | ExecutionException e) {
+            return RecipeResponse.withStatus("Not Found", 404);
+            // throw new RuntimeException(e);
+        }
     }
-
 }
+
