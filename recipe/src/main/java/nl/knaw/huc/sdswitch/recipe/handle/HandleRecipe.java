@@ -18,6 +18,12 @@ public class HandleRecipe implements Recipe<Void> {
 
     @Override
     public RecipeResponse withData(RecipeData<Void> data) {
+        // met een HttpClient doe een GET op https://hdl.handle.net/api/handles/<prefix>/<suffix>?noredirect
+        // je krijgt json terug 
+        // parseer die JSONObject json = JSONObject.fromObject(jsonString);
+        // haal hier de URL uit zie screenshot in slack
+        // doe een redirect naar de URL RecipeResponse.withRedirect(URL, 301);
+        //
         // work to be done
         // Matcher matcher = data.config().pattern().matcher(data.pathParam("path"));
         // if (matcher.matches()) {
