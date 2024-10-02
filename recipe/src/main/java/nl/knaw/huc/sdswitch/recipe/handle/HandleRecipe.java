@@ -13,6 +13,7 @@ import org.apache.hc.client5.http.impl.async.CloseableHttpAsyncClient;
 
 import org.json.JSONObject;
 import org.json.JSONArray;
+import org.json.JSONException;
 
 import java.io.IOException;
 import java.util.Set;
@@ -33,8 +34,12 @@ public class HandleRecipe implements Recipe<Void> {
     public RecipeResponse withData(RecipeData<Void> data) {
         String prefix = data.pathParam("prefix");
         String suffix = data.pathParam("suffix");
-        String findUrl = "https://hdl.handle.net/api/handles/"+prefix+"/"+suffix+"?noredirect";
+        String findUrl = "https://hdl.handle.net/api/handles/" + prefix + "/" + suffix + "?noredirect";
         // met een HttpClient doe een GET op https://hdl.handle.net/api/handles/<prefix>/<suffix>?noredirect
+        JSONObject json = null;
+        JSONArray jArray = null;
+        JSONObject jAitem = null;
+        String url;
         try (CloseableHttpAsyncClient httpclient = HttpAsyncClients.createDefault()) {
             httpclient.start();
             SimpleHttpRequest request = SimpleRequestBuilder.get(findUrl).build();
@@ -46,14 +51,21 @@ public class HandleRecipe implements Recipe<Void> {
             // haal hier de URL uit zie screenshot in slack
             // doe een redirect naar de URL RecipeResponse.withRedirect(URL, 301);
             String jsonString = response.getBodyText();
-            JSONObject json = new JSONObject(jsonString);
-            JSONArray jArray = json.getJSONArray("values");
-            JSONObject jAitem = jArray.getJSONObject(0);
-            String url = ((JSONObject)jAitem.get("data")).get("values").toString();
+            json = new JSONObject(jsonString);
+            jArray = (JSONArray) json.get("values");
+            jAitem = ((JSONObject) jArray.get(0)).getJSONObject("data");
+            url = jAitem.get("value").toString();
             return RecipeResponse.withRedirect(url, 301);
         } catch (IOException | InterruptedException | ExecutionException e) {
             return RecipeResponse.withStatus("Not Found", 404);
             // throw new RuntimeException(e);
+        } catch (JSONException e) {
+            if(jArray==null)
+            { jArray = new JSONArray( "[NULL]"); }
+            if(jAitem==null)
+            { jAitem = new JSONObject("{1: --NULL--}"); }
+            return RecipeResponse.withBody("<html><body><p>Not Found</p><p>"
+                + jArray.get(0) + "</p>\n<p>" + jAitem + "</p></body></html>", "html");
         }
     }
 }
