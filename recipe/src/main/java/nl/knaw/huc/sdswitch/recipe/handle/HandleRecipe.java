@@ -33,11 +33,11 @@ public class HandleRecipe implements Recipe<Void> {
     public RecipeResponse withData(RecipeData<Void> data) {
         String prefix = data.pathParam("prefix");
         String suffix = data.pathParam("suffix");
-        String findUrl = "https://hdl.handle.net/api/handles/<"+prefix+">/<"+suffix+">?noredirect";
+        String findUrl = "https://hdl.handle.net/api/handles/"+prefix+"/"+suffix+"?noredirect";
         // met een HttpClient doe een GET op https://hdl.handle.net/api/handles/<prefix>/<suffix>?noredirect
         try (CloseableHttpAsyncClient httpclient = HttpAsyncClients.createDefault()) {
             httpclient.start();
-            SimpleHttpRequest request = SimpleRequestBuilder.get("http://httpbin.org/get").build();
+            SimpleHttpRequest request = SimpleRequestBuilder.get(findUrl).build();
             Future<SimpleHttpResponse> future = httpclient.execute(request, null);
             // and wait until response is received
             SimpleHttpResponse response = future.get();

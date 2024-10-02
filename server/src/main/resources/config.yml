@@ -3,4 +3,4 @@
     - pattern: /test/{name}
 - recipe: nl.knaw.huc.sdswitch.recipe.handle.HandleRecipe
   urls:
-    - pattern: hdl:{prefix}/{suffix}
+    - pattern: /hdl:{prefix}/{suffix} 
