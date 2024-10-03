@@ -39,7 +39,8 @@ public class HandleRecipe implements Recipe<Void> {
         JSONObject json = null;
         JSONArray jArray = null;
         JSONObject jAitem = null;
-        String url;
+        String url = "";
+        String message = "";
         try (CloseableHttpAsyncClient httpclient = HttpAsyncClients.createDefault()) {
             httpclient.start();
             SimpleHttpRequest request = SimpleRequestBuilder.get(findUrl).build();
@@ -53,13 +54,23 @@ public class HandleRecipe implements Recipe<Void> {
             String jsonString = response.getBodyText();
             json = new JSONObject(jsonString);
             jArray = (JSONArray) json.get("values");
-            jAitem = ((JSONObject) jArray.get(0)).getJSONObject("data");
-            url = jAitem.get("value").toString();
-            return RecipeResponse.withRedirect(url, 301);
+            for (int i = 0; i < jArray.length(); i++) {
+                String type = jArray.getJSONObject(i).get("type").toString();
+                message += " " + i+ ": " + type;
+                if(type.equals("URL")) {
+                    message += " url found; ";
+                    JSONObject jsonData = (JSONObject) jArray.getJSONObject(i).get("data");
+                    message += " " + jsonData;
+                    url = jsonData.get("value").toString();
+                    message += " " + url;
+                    return RecipeResponse.withRedirect(url, 301);
+                }
+            }
+            return RecipeResponse.withStatus("Not Found: "+message, 404);
         } catch (IOException | InterruptedException | ExecutionException e) {
             return RecipeResponse.withStatus("Not Found", 404);
             // throw new RuntimeException(e);
-        } catch (JSONException e) {
+        } catch (JSONException | NullPointerException e) {
             if(jArray==null)
             { jArray = new JSONArray( "[NULL]"); }
             if(jAitem==null)
