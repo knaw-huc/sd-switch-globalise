@@ -1,3 +1,5 @@
+// foo bar
+
 package nl.knaw.huc.sdswitch.recipe.handle;
 
 import nl.knaw.huc.sdswitch.recipe.Recipe;
