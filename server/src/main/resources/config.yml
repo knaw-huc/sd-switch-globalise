@@ -1,6 +1,9 @@
-- recipe: nl.knaw.huc.sdswitch.recipe.helloworld.HelloWorldRecipe
-  urls:
-    - pattern: /test/{name}
 - recipe: nl.knaw.huc.sdswitch.recipe.handle.HandleRecipe
   urls:
-    - pattern: /hdl:{prefix}/{suffix} 
+    - pattern: /hdl:{prefix}/{suffix}
+      accept: text/html
+- recipe: nl.knaw.huc.sdswitch.recipe.handle.S3Recipe
+  urls:
+    - pattern: /hdl:{prefix}/place:{uuid}
+      accept: application/json
+    - pattern: /hdl:{prefix}/place:{uuid}.json

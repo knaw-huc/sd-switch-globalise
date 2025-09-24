@@ -1,2 +1,3 @@
  nl.knaw.huc.sdswitch.recipe.helloworld.HelloWorldRecipe
  nl.knaw.huc.sdswitch.recipe.handle.HandleRecipe
+ nl.knaw.huc.sdswitch.recipe.handle.S3Recipe
