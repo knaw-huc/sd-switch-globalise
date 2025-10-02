@@ -46,7 +46,8 @@ public class S3Recipe implements Recipe<Void> {
             String contentType = "application/json";
             return RecipeResponse.withBody(result, contentType);
         }
-
+        return RecipeResponse.withStatus("Not found", 404);
+        /*
         String url = "https://globalise.huygens.knaw.nl/#" + "/" + uuid + "?noredirect";
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
@@ -64,6 +65,8 @@ public class S3Recipe implements Recipe<Void> {
 //        return RecipeResponse.withRedirect(url, 301);
         String contentType = "application/json";
         return RecipeResponse.withBody(body, contentType);
+
+         */
     }
 
     public String model(String key) {
