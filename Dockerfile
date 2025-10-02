@@ -13,6 +13,7 @@ FROM eclipse-temurin:21-jre
 COPY --from=build /app/server/target/dependency /app
 
 EXPOSE 8080
+ENV AWS_REGION=default
 
 #ENTRYPOINT ["java", "-cp", "/app/cp/*", "-p", "/app/mp", "-m", "nl.knaw.huc.sdswitch.server/nl.knaw.huc.sdswitch.server.Application"]
 ENTRYPOINT ["java", "-cp", "/app", "nl.knaw.huc.sdswitch.server.Application"]

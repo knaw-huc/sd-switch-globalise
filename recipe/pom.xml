@@ -12,6 +12,17 @@
 
   <artifactId>recipe</artifactId>
   <packaging>jar</packaging>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>bom</artifactId>
+                <version>2.17.46</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
   <dependencies>
     <dependency>
       <groupId>org.apache.httpcomponents.client5</groupId>
@@ -24,6 +35,11 @@
       <artifactId>json</artifactId>
       <version>20240303</version>
     </dependency>
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>aws-sdk-java</artifactId>
+            <version>2.17.46</version>
+        </dependency>
   </dependencies>
   <build>
     <plugins>
