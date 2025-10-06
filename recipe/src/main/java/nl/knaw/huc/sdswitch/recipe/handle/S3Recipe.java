@@ -92,7 +92,7 @@ public class S3Recipe implements Recipe<Void> {
 
         GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                 .bucket(bucketName)
-                .key("place/" + key)
+                .key("place/" + key + ".json")
                 .build();
 
         ResponseInputStream<GetObjectResponse> responseInputStream = s3Client.getObject(getObjectRequest);
