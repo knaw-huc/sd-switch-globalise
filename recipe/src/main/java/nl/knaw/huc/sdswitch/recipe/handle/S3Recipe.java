@@ -71,9 +71,8 @@ public class S3Recipe implements Recipe<Void> {
 
     public String model(String key) {
         String result = "";
-        String bucketName = "globalise-test";
-
-//      Deze drie uit ENV halen
+//      Deze vier uit ENV halen
+        String bucketName = System.getenv("AWS_BUCKETNAME");
         String accessKeyId = System.getenv("AWS_ACCESS_KEY_ID");
         String secretAccessKey = System.getenv("AWS_SECRET_ACCESS_KEY");
         String endpoint = System.getenv("AWS_S3_ENDPOINT_URL");
@@ -93,7 +92,7 @@ public class S3Recipe implements Recipe<Void> {
 
         GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                 .bucket(bucketName)
-                .key(key)
+                .key("place/" + key)
                 .build();
 
         ResponseInputStream<GetObjectResponse> responseInputStream = s3Client.getObject(getObjectRequest);
