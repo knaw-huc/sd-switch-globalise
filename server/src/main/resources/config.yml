@@ -7,3 +7,6 @@
     - pattern: /hdl:{prefix}/place:{uuid}
       accept: application/json
     - pattern: /hdl:{prefix}/place:{uuid}.json
+    - pattern: /hdl:{prefix}/place:{uuid}
+      accept: text/html
+    - pattern: /hdl:{prefix}/place:{uuid}.html
