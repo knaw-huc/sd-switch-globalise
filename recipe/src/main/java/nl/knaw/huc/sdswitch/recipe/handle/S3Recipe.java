@@ -1,5 +1,3 @@
-// foo bar
-
 package nl.knaw.huc.sdswitch.recipe.handle;
 
 import nl.knaw.huc.sdswitch.recipe.Recipe;
@@ -9,9 +7,6 @@ import nl.knaw.huc.sdswitch.recipe.RecipeValidationException;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.util.Set;
 
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
@@ -23,7 +18,6 @@ import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Objects;
 
@@ -41,32 +35,12 @@ public class S3Recipe implements Recipe<Void> {
     public RecipeResponse withData(RecipeData<Void> data) {
         String prefix = data.pathParam("prefix");
         String uuid = data.pathParam("uuid");
-        if(uuid != "") {
+        if(!Objects.equals(uuid, "")) {
             String result = model(uuid);
             String contentType = "application/json";
             return RecipeResponse.withBody(result, contentType);
         }
         return RecipeResponse.withStatus("Not found", 404);
-        /*
-        String url = "https://globalise.huygens.knaw.nl/#" + "/" + uuid + "?noredirect";
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .build();
-        HttpResponse<String> response = null;
-        try {
-            response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        String body = response.body();
-//        return RecipeResponse.withRedirect(url, 301);
-        String contentType = "application/json";
-        return RecipeResponse.withBody(body, contentType);
-
-         */
     }
 
     public String model(String key) {
